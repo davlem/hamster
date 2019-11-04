@@ -120,11 +120,15 @@ def parse_datetime_range(arg):
     now = stuff.hamster_now().time()
 
     if fragments['date1'] or fragments['time1']:
-        start_time = dt.datetime.combine(to_time(fragments['date1']) or dt.date.today(),
-                                         to_time(fragments['time1']) or now)
+        start_time = dt.datetime.combine(
+            to_time(fragments['date1']) or dt.date.today(),
+            to_time(fragments['time1']) or now
+            )
     if fragments['date2'] or fragments['time2']:
-        end_time = dt.datetime.combine(to_time(fragments['date2']) or start_time or dt.date.today(),
-                                       to_time(fragments['time2']) or now)
+        end_time = dt.datetime.combine(
+            to_time(fragments['date2']) or start_time or dt.date.today(),
+            to_time(fragments['time2']) or now
+            )
 
     return start_time, end_time
 
@@ -268,8 +272,10 @@ class HamsterClient(object):
         """prints current activity. kinda minimal right now"""
         facts = self.storage.get_todays_facts()
         if facts and not facts[-1].end_time:
-            print("{} {}".format(str(facts[-1]).strip(),
-                                 stuff.format_duration(facts[-1].delta, human=False)))
+            print("{} {}".format(
+                str(facts[-1]).strip(),
+                stuff.format_duration(facts[-1].delta, human=False)
+                ))
         else:
             print((_("No activity")))
 
@@ -368,8 +374,8 @@ Actions:
     * list [start-date [end-date]]: List activities
     * search [terms] [start-date [end-date]]: List activities matching a search
       term
-    * export [html|tsv|ical|xml] [start-date [end-date]]: Export activities with
-      the specified format
+    * export [html|tsv|ical|xml] [start-date [end-date]]: Export activities
+      with the specified format
     * current: Print current activity
     * activities: List all the activities names, one per line.
     * categories: List all the categories names, one per line.
@@ -391,7 +397,8 @@ Example usage:
 
     hamster search pancakes 2012-08-01 2012-08-30
         look for an activity matching terms 'pancakes` between 1st and 30st
-        August 2012. Will check against activity, category, description and tags
+        August 2012. Will check against activity, category,
+        description and tags
 """)
     hamster_client = HamsterClient()
 

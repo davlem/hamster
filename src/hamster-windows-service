@@ -2,7 +2,8 @@
 # nicked off hamster-service
 
 from gi.repository import GLib as glib
-import dbus, dbus.service
+import dbus
+import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
 
 DBusGMainLoop(set_as_default=True)
@@ -21,7 +22,8 @@ class WindowServer(dbus.service.Object):
         self.app = True
         self.mainloop = loop
         self.bus = dbus.SessionBus()
-        bus_name = dbus.service.BusName("org.gnome.Hamster.WindowServer", bus=self.bus)
+        bus_name = dbus.service.BusName(
+            "org.gnome.Hamster.WindowServer", bus=self.bus)
         dbus.service.Object.__init__(self, bus_name, self.__dbus_object_path__)
 
     @dbus.service.method("org.gnome.Hamster")
@@ -29,10 +31,9 @@ class WindowServer(dbus.service.Object):
         """Shutdown the service"""
         self.mainloop.quit()
 
-
     @dbus.service.method("org.gnome.Hamster.WindowServer")
     def edit(self, id=None):
-        dialogs.edit.show(self.app, fact_id = id)
+        dialogs.edit.show(self.app, fact_id=id)
 
     @dbus.service.method("org.gnome.Hamster.WindowServer")
     def overview(self):
@@ -45,8 +46,6 @@ class WindowServer(dbus.service.Object):
     @dbus.service.method("org.gnome.Hamster.WindowServer")
     def preferences(self):
         dialogs.prefs.show(self.app)
-
-
 
 
 if __name__ == '__main__':
