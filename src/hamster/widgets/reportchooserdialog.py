@@ -23,6 +23,7 @@ from gi.repository import GObject as gobject
 from gi.repository import Gtk as gtk
 from hamster.lib.configuration import conf
 
+
 class ReportChooserDialog(gtk.Dialog):
     __gsignals__ = {
         # format, path, start_date, end_date
@@ -30,13 +31,13 @@ class ReportChooserDialog(gtk.Dialog):
                           (gobject.TYPE_STRING, gobject.TYPE_STRING)),
         'report-chooser-closed': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
     }
+
     def __init__(self):
         gtk.Dialog.__init__(self)
 
-
-        self.dialog = gtk.FileChooserDialog(title = _("Save Report — Time Tracker"),
-                                            parent = self,
-                                            action = gtk.FileChooserAction.SAVE,
+        self.dialog = gtk.FileChooserDialog(title=_("Save Report — Time Tracker"),
+                                            parent=self,
+                                            action=gtk.FileChooserAction.SAVE,
                                             buttons=(gtk.STOCK_CANCEL,
                                                      gtk.ResponseType.CANCEL,
                                                      gtk.STOCK_SAVE,
@@ -86,7 +87,6 @@ class ReportChooserDialog(gtk.Dialog):
         filter.add_pattern("*")
         self.dialog.add_filter(filter)
 
-
     def show(self, start_date, end_date):
         """setting suggested name to something readable, replace backslashes
            with dots so the name is valid in linux"""
@@ -111,12 +111,11 @@ class ReportChooserDialog(gtk.Dialog):
         else:
             self.on_save_button_clicked()
 
-
     def present(self):
         self.dialog.present()
 
     def on_save_button_clicked(self):
-        path, format = None,  None
+        path, format = None, None
 
         format = "html"
         if self.dialog.get_filter() in self.filters:
@@ -125,7 +124,8 @@ class ReportChooserDialog(gtk.Dialog):
 
         # append correct extension if it is missing
         # TODO - proper way would be to change extension on filter change
-        # only pointer in web is http://www.mail-archive.com/pygtk@daa.com.au/msg08740.html
+        # only pointer in web is
+        # http://www.mail-archive.com/pygtk@daa.com.au/msg08740.html
         if path.endswith(".%s" % format) == False:
             path = "%s.%s" % (path.rstrip("."), format)
 

@@ -53,8 +53,8 @@ def figure_time(str_time):
 
     # strip everything non-numeric and consider hours to be first number
     # and minutes - second number
-    numbers = re.split("\D", str_time)
-    numbers = [x for x in numbers if x!=""]
+    numbers = re.split(r"\D", str_time)
+    numbers = [x for x in numbers if x != ""]
 
     hours, minutes = None, None
 
@@ -67,7 +67,7 @@ def figure_time(str_time):
             minutes = int(numbers[1])
 
     if (hours is None or minutes is None) or hours > 24 or minutes > 60:
-        return None #no can do
+        return None  # no can do
 
     return hamster_now()
 
@@ -154,13 +154,15 @@ class Fact(object):
     def date(self, value):
         if self.start_time:
             previous_start_time = self.start_time
-            self.start_time = hamsterday_time_to_datetime(value, self.start_time.time())
+            self.start_time = hamsterday_time_to_datetime(
+                value, self.start_time.time())
             if self.end_time:
                 # start_time date prevails.
                 # Shift end_time to preserve the fact duration.
                 self.end_time += self.start_time - previous_start_time
         elif self.end_time:
-            self.end_time = hamsterday_time_to_datetime(value, self.end_time.time())
+            self.end_time = hamsterday_time_to_datetime(
+                value, self.end_time.time())
 
     @property
     def delta(self):
@@ -279,10 +281,10 @@ def parse_fact(text, phase=None, res=None, date=None):
     if not text:
         return res
 
-    fragment = re.split("[\s|#]", text, 1)[0].strip()
+    fragment = re.split(r"[\s|#]", text, 1)[0].strip()
 
     # remove a fragment assumed to be at the beginning of text
-    remove_fragment = lambda text, fragment: text[len(fragment):]
+    def remove_fragment(text, fragment): return text[len(fragment):]
 
     if "date" in phases:
         # if there is any date given, it must be at the front
@@ -305,7 +307,8 @@ def parse_fact(text, phase=None, res=None, date=None):
             # but using "now" prevents the latter
             res[phase] = now + dt.timedelta(minutes=int(fragment))
             remaining_text = remove_fragment(text, fragment)
-            return parse_fact(remaining_text, phases[phases.index(phase)+1], res, date)
+            return parse_fact(
+                remaining_text, phases[phases.index(phase) + 1], res, date)
 
         # only starting time ?
         m = re.search(time_re, fragment)
@@ -313,7 +316,8 @@ def parse_fact(text, phase=None, res=None, date=None):
             time = extract_time(m)
             res[phase] = hamsterday_time_to_datetime(date, time)
             remaining_text = remove_fragment(text, fragment)
-            return parse_fact(remaining_text, phases[phases.index(phase)+1], res, date)
+            return parse_fact(
+                remaining_text, phases[phases.index(phase) + 1], res, date)
 
         # start-end ?
         start, __, end = fragment.partition("-")
@@ -367,9 +371,13 @@ _time_fragment_re = [
     re.compile("^-$"),
     re.compile("^([0-1]?[0-9]?|[2]?[0-3]?)$"),
     re.compile("^([0-1]?[0-9]|[2][0-3]):?([0-5]?[0-9]?)$"),
-    re.compile("^([0-1]?[0-9]|[2][0-3]):([0-5][0-9])-?([0-1]?[0-9]?|[2]?[0-3]?)$"),
-    re.compile("^([0-1]?[0-9]|[2][0-3]):([0-5][0-9])-([0-1]?[0-9]|[2][0-3]):?([0-5]?[0-9]?)$"),
+    re.compile(
+        "^([0-1]?[0-9]|[2][0-3]):([0-5][0-9])-?([0-1]?[0-9]?|[2]?[0-3]?)$"),
+    re.compile(
+        "^([0-1]?[0-9]|[2][0-3]):([0-5][0-9])-([0-1]?[0-9]|[2][0-3]):?([0-5]?[0-9]?)$"),
 ]
+
+
 def looks_like_time(fragment):
     if not fragment:
         return False

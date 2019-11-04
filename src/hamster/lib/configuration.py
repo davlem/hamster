@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Project Hamster.  If not, see <http://www.gnu.org/licenses/>.
 
+from gi.repository import GConf as gconf
 """
 gconf part of this code copied from Gimmie (c) Alex Gravely via Conduit (c) John Stowers, 2006
 License: GPLv2
@@ -35,7 +36,6 @@ from gi.repository import Gtk as gtk
 
 import gi
 gi.require_version('GConf', '2.0')
-from gi.repository import GConf as gconf
 
 
 class Controller(gobject.GObject):
@@ -59,11 +59,9 @@ class Controller(gobject.GObject):
         if self._gui:
             self._gui.connect_signals(self)
 
-
     def get_widget(self, name):
         """ skip one variable (huh) """
         return self._gui.get_object(name)
-
 
     def window_delete_event(self, widget, event):
         self.close_window()
@@ -91,12 +89,12 @@ def load_ui_file(name):
     return ui
 
 
-
 class Singleton(object):
     def __new__(cls, *args, **kwargs):
         if '__instance' not in vars(cls):
             cls.__instance = object.__new__(cls, *args, **kwargs)
         return cls.__instance
+
 
 class RuntimeStore(Singleton):
     """XXX - kill"""
@@ -109,7 +107,7 @@ class RuntimeStore(Singleton):
             from hamster import defs
             self.data_dir = os.path.join(defs.DATA_DIR, "hamster-time-tracker")
             self.version = defs.VERSION
-        except:
+        except BaseException:
             # if defs is not there, we are running from sources
             module_dir = os.path.dirname(os.path.realpath(__file__))
             self.data_dir = os.path.join(module_dir, '..', '..', '..', 'data')
@@ -117,7 +115,8 @@ class RuntimeStore(Singleton):
 
         self.data_dir = os.path.realpath(self.data_dir)
         self.storage = Storage()
-        self.home_data_dir = os.path.realpath(os.path.join(xdg_data_home, "hamster-time-tracker"))
+        self.home_data_dir = os.path.realpath(
+            os.path.join(xdg_data_home, "hamster-time-tracker"))
 
 
 runtime = RuntimeStore()
@@ -137,9 +136,9 @@ class OneWindow(object):
         handler = self.dialog_close_handlers.pop(dialog)
         dialog.disconnect(handler)
 
-
-    def show(self, parent = None, **kwargs):
-        params = str(sorted(kwargs.items())) #this is not too safe but will work for most cases
+    def show(self, parent=None, **kwargs):
+        # this is not too safe but will work for most cases
+        params = str(sorted(kwargs.items()))
 
         if params in self.dialogs:
             window = self.dialogs[params].window
@@ -153,7 +152,8 @@ class OneWindow(object):
                     dialog.window.set_transient_for(parent.get_toplevel())
 
                 if hasattr(dialog, "connect"):
-                    self.dialog_close_handlers[dialog] = dialog.connect("on-close", self.on_close_window)
+                    self.dialog_close_handlers[dialog] = dialog.connect(
+                        "on-close", self.on_close_window)
             else:
                 dialog = self.get_dialog_class()(**kwargs)
 
@@ -164,9 +164,11 @@ class OneWindow(object):
 
             self.dialogs[params] = dialog
 
+
 class Dialogs(Singleton):
     """makes sure that we have single instance open for windows where it makes
        sense"""
+
     def __init__(self):
         def get_edit_class():
             from hamster.edit_activity import CustomFactController
@@ -188,6 +190,7 @@ class Dialogs(Singleton):
             return PreferencesEditor
         self.prefs = OneWindow(get_prefs_class)
 
+
 dialogs = Dialogs()
 
 
@@ -199,26 +202,31 @@ class GConfStore(gobject.GObject, Singleton):
     GCONF_DIR = "/apps/hamster-time-tracker/"
     VALID_KEY_TYPES = (bool, str, int, list, tuple)
     DEFAULTS = {
-        'enable_timeout'              :   False,       # Should hamster stop tracking on idle
-        'stop_on_shutdown'            :   False,       # Should hamster stop tracking on shutdown
-        'notify_on_idle'              :   False,       # Remind also if no activity is set
-        'notify_interval'             :   27,          # Remind of current activity every X minutes
-        'day_start_minutes'           :   5 * 60 + 30, # At what time does the day start (5:30AM)
-        'overview_window_box'         :   [],          # X, Y, W, H
-        'overview_window_maximized'   :   False,       # Is overview window maximized
-        'standalone_window_box'       :   [],          # X, Y, W, H
-        'standalone_window_maximized' :   False,       # Is overview window maximized
-        'activities_source'           :   "",          # Source of TODO items ("", "evo", "gtg")
-        'last_report_folder'          :   "~",         # Path to directory where the last report was saved
+        'enable_timeout': False,       # Should hamster stop tracking on idle
+        'stop_on_shutdown': False,       # Should hamster stop tracking on shutdown
+        'notify_on_idle': False,       # Remind also if no activity is set
+        'notify_interval': 27,          # Remind of current activity every X minutes
+        # At what time does the day start (5:30AM)
+        'day_start_minutes': 5 * 60 + 30,
+        'overview_window_box': [],          # X, Y, W, H
+        'overview_window_maximized': False,       # Is overview window maximized
+        'standalone_window_box': [],          # X, Y, W, H
+        'standalone_window_maximized': False,       # Is overview window maximized
+        # Source of TODO items ("", "evo", "gtg")
+        'activities_source': "",
+        # Path to directory where the last report was saved
+        'last_report_folder': "~",
     }
 
     __gsignals__ = {
         "conf-changed": (gobject.SignalFlags.RUN_LAST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT, gobject.TYPE_PYOBJECT))
     }
+
     def __init__(self):
         gobject.GObject.__init__(self)
         self._client = gconf.Client.get_default()
-        self._client.add_dir(self.GCONF_DIR[:-1], gconf.ClientPreloadType.PRELOAD_RECURSIVE)
+        self._client.add_dir(
+            self.GCONF_DIR[:-1], gconf.ClientPreloadType.PRELOAD_RECURSIVE)
         self._notifications = []
 
     def _fix_key(self, key):
@@ -244,7 +252,6 @@ class GConfStore(gobject.GObject, Singleton):
 
         self.emit('conf-changed', key, value)
 
-
     def _get_value(self, value, default):
         """calls appropriate gconf function by the default value"""
         vtype = type(default)
@@ -269,12 +276,12 @@ class GConfStore(gobject.GObject, Singleton):
         not yet in gconf
         """
 
-        #function arguments override defaults
+        # function arguments override defaults
         if default is None:
             default = self.DEFAULTS.get(key, None)
         vtype = type(default)
 
-        #we now have a valid key and type
+        # we now have a valid key and type
         if default is None:
             logger.warn("Unknown key: %s, must specify default value" % key)
             return None
@@ -283,7 +290,7 @@ class GConfStore(gobject.GObject, Singleton):
             logger.warn("Invalid key type: %s" % vtype)
             return None
 
-        #for gconf refer to the full key path
+        # for gconf refer to the full key path
         key = self._fix_key(key)
 
         if key not in self._notifications:
@@ -317,7 +324,7 @@ class GConfStore(gobject.GObject, Singleton):
             logger.warn("Invalid key type: %s" % vtype)
             return False
 
-        #for gconf refer to the full key path
+        # for gconf refer to the full key path
         key = self._fix_key(key)
 
         if vtype is bool:
@@ -327,7 +334,7 @@ class GConfStore(gobject.GObject, Singleton):
         elif vtype is int:
             self._client.set_int(key, value)
         elif vtype in (list, tuple):
-            #Save every value as a string
+            # Save every value as a string
             strvalues = [str(i) for i in value]
             #self._client.set_list(key, gconf.VALUE_STRING, strvalues)
 

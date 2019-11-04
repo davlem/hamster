@@ -22,6 +22,7 @@ import datetime as dt
 from hamster.lib import Fact
 from hamster.lib.stuff import hamster_now
 
+
 class Storage(object):
     def run_fixtures(self):
         pass
@@ -36,9 +37,9 @@ class Storage(object):
         self.facts_changed()
         self.activities_changed()
 
-
     # facts
-    def add_fact(self, fact, start_time, end_time, temporary = False):
+
+    def add_fact(self, fact, start_time, end_time, temporary=False):
         """Add fact.
 
         fact: either a Fact instance or
@@ -62,8 +63,8 @@ class Storage(object):
         """Get fact by id. For output format see GetFacts"""
         return self.__get_fact(fact_id)
 
-
-    def update_fact(self, fact_id, fact, start_time, end_time, temporary = False):
+    def update_fact(self, fact_id, fact, start_time,
+                    end_time, temporary=False):
         self.start_transaction()
         self.__remove_fact(fact_id)
         result = self.__add_fact(fact, start_time, end_time, temporary)
@@ -72,14 +73,12 @@ class Storage(object):
             self.facts_changed()
         return result
 
-
     def stop_tracking(self, end_time):
         """Stops tracking the current activity"""
         facts = self.__get_todays_facts()
         if facts and not facts[-1]['end_time']:
             self.__touch_fact(facts[-1], end_time)
             self.facts_changed()
-
 
     def remove_fact(self, fact_id):
         """Remove fact from storage by it's ID"""
@@ -90,18 +89,16 @@ class Storage(object):
             self.facts_changed()
         self.end_transaction()
 
-
     def get_facts(self, start_date, end_date, search_terms):
         return self.__get_facts(start_date, end_date, search_terms)
-
 
     def get_todays_facts(self):
         """Gets facts of today, respecting hamster midnight. See GetFacts for
         return info"""
         return self.__get_todays_facts()
 
-
     # categories
+
     def add_category(self, name):
         res = self.__add_category(name)
         self.activities_changed()
@@ -118,13 +115,12 @@ class Storage(object):
         self.__remove_category(id)
         self.activities_changed()
 
-
     def get_categories(self):
         return self.__get_categories()
 
-
     # activities
-    def add_activity(self, name, category_id = -1):
+
+    def add_activity(self, name, category_id=-1):
         new_id = self.__add_activity(name, category_id)
         self.activities_changed()
         return new_id
@@ -138,10 +134,10 @@ class Storage(object):
         self.activities_changed()
         return result
 
-    def get_category_activities(self, category_id = -1):
-        return self.__get_category_activities(category_id = category_id)
+    def get_category_activities(self, category_id=-1):
+        return self.__get_category_activities(category_id=category_id)
 
-    def get_activities(self, search = ""):
+    def get_activities(self, search=""):
         return self.__get_activities(search)
 
     def change_category(self, id, category_id):
@@ -150,10 +146,11 @@ class Storage(object):
             self.activities_changed()
         return changed
 
-    def get_activity_by_name(self, activity, category_id, resurrect = True):
+    def get_activity_by_name(self, activity, category_id, resurrect=True):
         category_id = category_id or None
         if activity:
-            return dict(self.__get_activity_by_name(activity, category_id, resurrect) or {})
+            return dict(self.__get_activity_by_name(
+                activity, category_id, resurrect) or {})
         else:
             return {}
 

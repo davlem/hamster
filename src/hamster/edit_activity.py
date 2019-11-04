@@ -39,7 +39,7 @@ class CustomFactController(gobject.GObject):
         "on-close": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
     }
 
-    def __init__(self,  parent=None, fact_id=None, base_fact=None):
+    def __init__(self, parent=None, fact_id=None, base_fact=None):
         gobject.GObject.__init__(self)
 
         self._gui = load_ui_file("edit_activity.ui")
@@ -49,14 +49,17 @@ class CustomFactController(gobject.GObject):
         # None if creating a new fact, instead of editing one
         self.fact_id = fact_id
 
-        self.category_entry = widgets.CategoryEntry(widget=self.get_widget('category'))
+        self.category_entry = widgets.CategoryEntry(
+            widget=self.get_widget('category'))
         self.activity_entry = widgets.ActivityEntry(widget=self.get_widget('activity'),
                                                     category_widget=self.category_entry)
 
         self.cmdline = widgets.CmdLineEntry()
         self.get_widget("command line box").add(self.cmdline)
         self.cmdline.connect("focus_in_event", self.on_cmdline_focus_in_event)
-        self.cmdline.connect("focus_out_event", self.on_cmdline_focus_out_event)
+        self.cmdline.connect(
+            "focus_out_event",
+            self.on_cmdline_focus_out_event)
 
         self.dayline = widgets.DayLine()
         self._gui.get_object("day_preview").add(self.dayline)
@@ -118,7 +121,7 @@ class CustomFactController(gobject.GObject):
         self.end_time.connect("changed", self.on_end_time_changed)
         self.end_date.connect("day-selected", self.on_end_date_changed)
         self.end_date.expander.connect("activate",
-                                         self.on_end_date_expander_activated)
+                                       self.on_end_date_expander_activated)
         self.activity_entry.connect("changed", self.on_activity_changed)
         self.category_entry.connect("changed", self.on_category_changed)
         self.tags_entry.connect("changed", self.on_tags_changed)
@@ -200,7 +203,8 @@ class CustomFactController(gobject.GObject):
         if not self.master_is_cmdline:
             if self.fact.end_time:
                 time = self.fact.end_time.time()
-                self.fact.end_time = dt.datetime.combine(self.end_date.date, time)
+                self.fact.end_time = dt.datetime.combine(
+                    self.end_date.date, time)
                 self.validate_fields()
                 self.update_cmdline()
             elif self.end_date.date:
@@ -254,7 +258,8 @@ class CustomFactController(gobject.GObject):
                     new_start_time = dt.datetime.combine(self.fact.start_time.date(),
                                                          new_time)
                 else:
-                    # date not specified; result must fall in current hamster_day
+                    # date not specified; result must fall in current
+                    # hamster_day
                     new_start_time = hamsterday_time_to_datetime(hamster_today(),
                                                                  new_time)
             else:
@@ -277,7 +282,8 @@ class CustomFactController(gobject.GObject):
         with self.cmdline.handler_block(self.cmdline.checker):
             self.cmdline.set_text(label)
             if select:
-                time_str = self.cmdline_fact.serialized_time(prepend_date=False)
+                time_str = self.cmdline_fact.serialized_time(
+                    prepend_date=False)
                 self.cmdline.select_region(0, len(time_str))
 
     def update_fields(self):
@@ -319,7 +325,8 @@ class CustomFactController(gobject.GObject):
         fact = self.fact
 
         now = hamster_now()
-        self.get_widget("button-next-day").set_sensitive(self.date < now.date())
+        self.get_widget(
+            "button-next-day").set_sensitive(self.date < now.date())
 
         if self.date == now.date():
             default_dt = now
@@ -383,8 +390,8 @@ class CustomFactController(gobject.GObject):
                   or self.end_time.popup.get_property("visible")
                   or self.tags_entry.popup.get_property("visible"))
 
-        if (event_key.keyval == gdk.KEY_Escape or \
-           (event_key.keyval == gdk.KEY_w and event_key.state & gdk.ModifierType.CONTROL_MASK)):
+        if (event_key.keyval == gdk.KEY_Escape or
+                (event_key.keyval == gdk.KEY_w and event_key.state & gdk.ModifierType.CONTROL_MASK)):
             if popups:
                 return False
 

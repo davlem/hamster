@@ -25,7 +25,7 @@ class Widget(graphics.Sprite):
                               "y_align"))
 
     min_width = None  #: minimum width of the widget
-    min_height = None #: minimum height of the widget
+    min_height = None  # : minimum height of the widget
 
     #: Whether the child should receive extra space when the parent grows.
     expand = True
@@ -48,7 +48,7 @@ class Widget(graphics.Sprite):
     padding = None
     padding_top = None    #: child padding - top
     padding_right = None  #: child padding - right
-    padding_bottom = None #: child padding - bottom
+    padding_bottom = None  # : child padding - bottom
     padding_left = None   #: child padding - left
 
     #: widget margins - shorthand to manipulate margin in pixels ala CSS. tuple
@@ -61,17 +61,17 @@ class Widget(graphics.Sprite):
     margin_bottom = 0  #: bottom margin
     margin_left = 0    #: left margin
 
-    enabled = True #: whether the widget is enabled
+    enabled = True  # : whether the widget is enabled
 
-    mouse_cursor = False #: Mouse cursor. see :attr:`graphics.Sprite.mouse_cursor` for values
+    mouse_cursor = False  # : Mouse cursor. see :attr:`graphics.Sprite.mouse_cursor` for values
 
-    def __init__(self, width = None, height = None, expand = None, fill = None,
-                 x_align = None, y_align = None,
-                 padding_top = None, padding_right = None,
-                 padding_bottom = None, padding_left = None, padding = None,
-                 margin_top = None, margin_right = None,
-                 margin_bottom = None, margin_left = None, margin = None,
-                 enabled = None, **kwargs):
+    def __init__(self, width=None, height=None, expand=None, fill=None,
+                 x_align=None, y_align=None,
+                 padding_top=None, padding_right=None,
+                 padding_bottom=None, padding_left=None, padding=None,
+                 margin_top=None, margin_right=None,
+                 margin_bottom=None, margin_left=None, margin=None,
+                 enabled=None, **kwargs):
         graphics.Sprite.__init__(self, **kwargs)
 
         def set_if_not_none(name, val):
@@ -105,7 +105,6 @@ class Widget(graphics.Sprite):
         self.margin_bottom = margin_bottom or self.__class__.margin_bottom or self.margin_bottom or 0
         self.margin_left = margin_left or self.__class__.margin_left or self.margin_left or 0
 
-
         #: width in pixels that have been allocated to the widget by parent
         self.alloc_w = width if width is not None else self.min_width
 
@@ -121,9 +120,9 @@ class Widget(graphics.Sprite):
         self._children_resize_queued = True
         self._scene_resize_handler = None
 
-
     def __setattr__(self, name, val):
-        # forward width and height to min_width and min_height as i've ruined the setters a bit i think
+        # forward width and height to min_width and min_height as i've ruined
+        # the setters a bit i think
         if name == "width":
             name = "min_width"
         elif name == "height":
@@ -136,7 +135,8 @@ class Widget(graphics.Sprite):
                 val = (val, )
 
             if len(val) == 1:
-                self.padding_top = self.padding_right = self.padding_bottom = self.padding_left = val[0]
+                self.padding_top = self.padding_right = self.padding_bottom = self.padding_left = val[
+                    0]
             elif len(val) == 2:
                 self.padding_top = self.padding_bottom = val[0]
                 self.padding_right = self.padding_left = val[1]
@@ -155,7 +155,8 @@ class Widget(graphics.Sprite):
                 val = (val, )
 
             if len(val) == 1:
-                self.margin_top = self.margin_right = self.margin_bottom = self.margin_left = val[0]
+                self.margin_top = self.margin_right = self.margin_bottom = self.margin_left = val[
+                    0]
             elif len(val) == 2:
                 self.margin_top = self.margin_bottom = val[0]
                 self.margin_right = self.margin_left = val[1]
@@ -167,14 +168,15 @@ class Widget(graphics.Sprite):
                 self.margin_top, self.margin_right, self.margin_bottom, self.margin_left = val
             return
 
-
         if self.__dict__.get(name, "hamster_graphics_no_value_really") == val:
             return
 
         graphics.Sprite.__setattr__(self, name, val)
 
-        # in widget case visibility affects placement and everything so request repositioning from parent
-        if name == 'visible' and getattr(self, "parent", None) and getattr(self.parent, "resize_children", None):
+        # in widget case visibility affects placement and everything so request
+        # repositioning from parent
+        if name == 'visible' and getattr(self, "parent", None) and getattr(
+                self.parent, "resize_children", None):
             self.parent.resize_children()
 
         elif name == '_enabled' and getattr(self, "sprites", None):
@@ -213,7 +215,6 @@ class Widget(graphics.Sprite):
         if self.tooltip and not gdk.ModifierType.BUTTON1_MASK & mods:
             self._set_tooltip(self.tooltip)
 
-
     def __on_mouse_out(self, sprite):
         if self.tooltip:
             self._set_tooltip(None)
@@ -228,7 +229,7 @@ class Widget(graphics.Sprite):
         if event.keyval in (gdk.KEY_Tab, gdk.KEY_ISO_Left_Tab):
             idx = self.parent.sprites.index(self)
 
-            if event.state & gdk.ModifierType.SHIFT_MASK: # going backwards
+            if event.state & gdk.ModifierType.SHIFT_MASK:  # going backwards
                 if idx > 0:
                     idx -= 1
                     self.parent.sprites[idx].grab_focus()
@@ -237,14 +238,13 @@ class Widget(graphics.Sprite):
                     idx += 1
                     self.parent.sprites[idx].grab_focus()
 
-
     def queue_resize(self):
         """request the element to re-check it's child sprite sizes"""
         self._children_resize_queued = True
         parent = getattr(self, "parent", None)
-        if parent and isinstance(parent, graphics.Sprite) and hasattr(parent, "queue_resize"):
+        if parent and isinstance(parent, graphics.Sprite) and hasattr(
+                parent, "queue_resize"):
             parent.queue_resize()
-
 
     def get_min_size(self):
         """returns size required by the widget"""
@@ -254,16 +254,13 @@ class Widget(graphics.Sprite):
             return ((self.min_width or 0) + self.horizontal_padding + self.margin_left + self.margin_right,
                     (self.min_height or 0) + self.vertical_padding + self.margin_top + self.margin_bottom)
 
-
-
-    def insert(self, index = 0, *widgets):
+    def insert(self, index=0, *widgets):
         """insert widget in the sprites list at the given index.
         by default will prepend."""
         for widget in widgets:
             self._add(widget, index)
-            index +=1 # as we are moving forwards
+            index += 1  # as we are moving forwards
         self._sort()
-
 
     def insert_before(self, target):
         """insert this widget into the targets parent before the target"""
@@ -276,7 +273,6 @@ class Widget(graphics.Sprite):
         if not target.parent:
             return
         target.parent.insert(target.parent.sprites.index(target) + 1, self)
-
 
     @property
     def width(self):
@@ -293,13 +289,13 @@ class Widget(graphics.Sprite):
                     scene.disconnect(self._scene_resize_handler)
                     self._scene_resize_handler = None
 
-
             if not self._scene_resize_handler:
                 # TODO - disconnect on reparenting
-                self._scene_resize_handler = self.parent.connect("on-resize", res)
+                self._scene_resize_handler = self.parent.connect(
+                    "on-resize", res)
 
-
-        min_width = (self.min_width or 0) + self.margin_left + self.margin_right
+        min_width = (self.min_width or 0) + \
+            self.margin_left + self.margin_right
         w = alloc_w if alloc_w is not None and self.fill else min_width
         w = max(w or 0, self.get_min_size()[0])
         return w - self.margin_left - self.margin_right
@@ -312,7 +308,8 @@ class Widget(graphics.Sprite):
         if self.parent and isinstance(self.parent, graphics.Scene):
             alloc_h = self.parent.height
 
-        min_height = (self.min_height or 0) + self.margin_top + self.margin_bottom
+        min_height = (self.min_height or 0) + \
+            self.margin_top + self.margin_bottom
         h = alloc_h if alloc_h is not None and self.fill else min_height
         h = max(h or 0, self.get_min_size()[1])
         return h - self.margin_top - self.margin_bottom
@@ -330,7 +327,6 @@ class Widget(graphics.Sprite):
                 return False
 
         return True
-
 
     def __on_render(self, sprite):
         self.do_render()
@@ -350,8 +346,8 @@ class Widget(graphics.Sprite):
             self.graphics.restore_context()
 
             if self.pivot_x or self.pivot_y:
-                self.graphics.fill_area(self.pivot_x - 3, self.pivot_y - 3, 6, 6, "#666")
-
+                self.graphics.fill_area(
+                    self.pivot_x - 3, self.pivot_y - 3, 6, 6, "#666")
 
     def do_render(self):
         """this function is called in the on-render event. override it to do
@@ -361,19 +357,19 @@ class Widget(graphics.Sprite):
         pass
 
 
-
-
-
 def get_min_size(sprite):
     if hasattr(sprite, "get_min_size"):
         min_width, min_height = sprite.get_min_size()
     else:
-        min_width, min_height = getattr(sprite, "width", 0), getattr(sprite, "height", 0)
+        min_width, min_height = getattr(
+            sprite, "width", 0), getattr(
+            sprite, "height", 0)
 
     min_width = min_width * sprite.scale_x
     min_height = min_height * sprite.scale_y
 
     return min_width, min_height
+
 
 def get_props(sprite):
     # gets all the relevant info for containers and puts it in a uniform dict.
@@ -398,15 +394,15 @@ class Container(Widget):
        for allocated. So use that when making rendering decisions.
     """
     cache_attrs = Widget.cache_attrs | set(('_cached_w', '_cached_h'))
-    _sizing_attributes = Widget._sizing_attributes | set(('padding_top', 'padding_right', 'padding_bottom', 'padding_left'))
+    _sizing_attributes = Widget._sizing_attributes | set(
+        ('padding_top', 'padding_right', 'padding_bottom', 'padding_left'))
 
-    def __init__(self, contents = None, **kwargs):
+    def __init__(self, contents=None, **kwargs):
         Widget.__init__(self, **kwargs)
 
         #: contents of the container - either a widget or a list of widgets
         self.contents = contents
         self._cached_w, self._cached_h = None, None
-
 
     def __setattr__(self, name, val):
         if self.__dict__.get(name, "hamster_graphics_no_value_really") == val:
@@ -425,18 +421,15 @@ class Container(Widget):
             self.__dict__['_cached_w'], self.__dict__['_cached_h'] = None, None
             self._children_resize_queued = True
 
-
     @property
     def contents(self):
         return self.sprites
-
 
     def _Widget__on_render(self, sprite):
         if self._children_resize_queued:
             self.resize_children()
             self.__dict__['_children_resize_queued'] = False
         Widget._Widget__on_render(self, sprite)
-
 
     def _add(self, *sprites):
         Widget._add(self, *sprites)
@@ -458,18 +451,20 @@ class Container(Widget):
         if self._cached_w is None:
             sprites = [sprite for sprite in self.sprites if sprite.visible]
             width = max([get_min_size(sprite)[0] for sprite in sprites] or [0])
-            width += self.horizontal_padding  + self.margin_left + self.margin_right
+            width += self.horizontal_padding + self.margin_left + self.margin_right
 
-            height = max([get_min_size(sprite)[1] for sprite in sprites] or [0])
+            height = max([get_min_size(sprite)[1]
+                          for sprite in sprites] or [0])
             height += self.vertical_padding + self.margin_top + self.margin_bottom
 
-            self._cached_w, self._cached_h = max(width, self.min_width or 0), max(height, self.min_height or 0)
+            self._cached_w, self._cached_h = max(
+                width, self.min_width or 0), max(
+                height, self.min_height or 0)
 
         return self._cached_w, self._cached_h
 
     def get_height_for_width_size(self):
         return self.get_min_size()
-
 
     def resize_children(self):
         """default container alignment is to pile stuff just up, respecting only
@@ -477,7 +472,8 @@ class Container(Widget):
         width = self.width - self.horizontal_padding
         height = self.height - self.vertical_padding
 
-        for sprite, props in (get_props(sprite) for sprite in self.sprites if sprite.visible):
+        for sprite, props in (get_props(sprite)
+                              for sprite in self.sprites if sprite.visible):
             sprite.alloc_w = width
             sprite.alloc_h = height
 
@@ -486,12 +482,15 @@ class Container(Widget):
                 w2, h2 = sprite.get_height_for_width_size()
                 w, h = max(w, w2), max(h, h2)
 
-            w = w * sprite.scale_x + props["margin_left"] + props["margin_right"]
-            h = h * sprite.scale_y + props["margin_top"] + props["margin_bottom"]
+            w = w * sprite.scale_x + \
+                props["margin_left"] + props["margin_right"]
+            h = h * sprite.scale_y + \
+                props["margin_top"] + props["margin_bottom"]
 
-            sprite.x = self.padding_left + props["margin_left"] + (max(sprite.alloc_w * sprite.scale_x, w) - w) * getattr(sprite, "x_align", 0)
-            sprite.y = self.padding_top + props["margin_top"] + (max(sprite.alloc_h * sprite.scale_y, h) - h) * getattr(sprite, "y_align", 0)
-
+            sprite.x = self.padding_left + props["margin_left"] + (
+                max(sprite.alloc_w * sprite.scale_x, w) - w) * getattr(sprite, "x_align", 0)
+            sprite.y = self.padding_top + props["margin_top"] + (
+                max(sprite.alloc_h * sprite.scale_y, h) - h) * getattr(sprite, "y_align", 0)
 
         self.__dict__['_children_resize_queued'] = False
 
@@ -499,7 +498,8 @@ class Container(Widget):
 class Bin(Container):
     """A container with only one child. Adding new children will throw the
     previous ones out"""
-    def __init__(self, contents = None, **kwargs):
+
+    def __init__(self, contents=None, **kwargs):
         Container.__init__(self, contents, **kwargs)
 
     @property
@@ -517,7 +517,9 @@ class Bin(Container):
             if hasattr(sprite, "get_height_for_width_size"):
                 w, h = sprite.get_height_for_width_size()
             else:
-                w, h = getattr(sprite, "width", 0), getattr(sprite, "height", 0)
+                w, h = getattr(
+                    sprite, "width", 0), getattr(
+                    sprite, "height", 0)
 
             w, h = w * sprite.scale_x, h * sprite.scale_y
 
@@ -529,12 +531,11 @@ class Bin(Container):
 
         return width, height
 
-
     def add_child(self, *sprites):
         if not sprites:
             return
 
-        sprite = sprites[-1] # there can be just one
+        sprite = sprites[-1]  # there can be just one
 
         # performing add then remove to not screw up coordinates in
         # a strange reparenting case
@@ -543,18 +544,17 @@ class Bin(Container):
             self.remove_child(*list(set(self.sprites) ^ set([sprite])))
 
 
-
 class Fixed(Container):
     """Basic container that does not care about child positions. Handy if
        you want to place stuff yourself or do animations.
     """
-    def __init__(self, contents = None, **kwargs):
+
+    def __init__(self, contents=None, **kwargs):
         Container.__init__(self, contents, **kwargs)
 
     def resize_children(self):
         # don't want
         pass
-
 
 
 class Box(Container):
@@ -569,7 +569,7 @@ class Box(Container):
     #: whether the box is packing children horizontally (from left to right) or vertically (from top to bottom)
     orient_horizontal = True
 
-    def __init__(self, contents = None, horizontal = None, spacing = None, **kwargs):
+    def __init__(self, contents=None, horizontal=None, spacing=None, **kwargs):
         Container.__init__(self, contents, **kwargs)
 
         if horizontal is not None:
@@ -587,14 +587,16 @@ class Box(Container):
                     padding_sprites += 1
                 else:
                     if hasattr(sprite, "get_min_size"):
-                        size = sprite.get_min_size()[0] if self.orient_horizontal else sprite.get_min_size()[1]
+                        size = sprite.get_min_size(
+                        )[0] if self.orient_horizontal else sprite.get_min_size()[1]
                     else:
-                        size = getattr(sprite, "width", 0) * sprite.scale_x if self.orient_horizontal else getattr(sprite, "height", 0) * sprite.scale_y
+                        size = getattr(
+                            sprite, "width", 0) * sprite.scale_x if self.orient_horizontal else getattr(
+                            sprite, "height", 0) * sprite.scale_y
 
                     if size > 0:
-                        padding_sprites +=1
+                        padding_sprites += 1
         return self.spacing * max(padding_sprites - 1, 0)
-
 
     def resize_children(self):
         if not self.parent:
@@ -603,7 +605,8 @@ class Box(Container):
         width = self.width - self.padding_left - self.padding_right
         height = self.height - self.padding_top - self.padding_bottom
 
-        sprites = [get_props(sprite) for sprite in self.sprites if sprite.visible]
+        sprites = [get_props(sprite)
+                   for sprite in self.sprites if sprite.visible]
 
         # calculate if we have any spare space
         sprite_sizes = []
@@ -616,18 +619,24 @@ class Box(Container):
                 sprite.alloc_w = width / sprite.scale_x
                 size = get_min_size(sprite)[1]
                 if hasattr(sprite, "get_height_for_width_size"):
-                    size = max(size, sprite.get_height_for_width_size()[1] * sprite.scale_y)
+                    size = max(
+                        size,
+                        sprite.get_height_for_width_size()[1] *
+                        sprite.scale_y)
                 size = size + props["margin_top"] + props["margin_bottom"]
             sprite_sizes.append(size)
 
-
         remaining_space = width if self.orient_horizontal else height
         if sprite_sizes:
-            remaining_space = remaining_space - sum(sprite_sizes) - self.get_total_spacing()
+            remaining_space = remaining_space - \
+                sum(sprite_sizes) - self.get_total_spacing()
 
-
-        interested_sprites = [sprite for sprite, props in sprites if getattr(sprite, "expand", True)]
-
+        interested_sprites = [
+            sprite for sprite,
+            props in sprites if getattr(
+                sprite,
+                "expand",
+                True)]
 
         # in order to stay pixel sharp we will recalculate remaining bonus
         # each time we give up some of the remaining space
@@ -648,7 +657,6 @@ class Box(Container):
                 if remaining_interested:
                     bonus = int(float(remaining_space) / remaining_interested)
 
-
             if self.orient_horizontal:
                 sprite.alloc_w = (min_size + sprite_bonus) / sprite.scale_x
             else:
@@ -659,22 +667,25 @@ class Box(Container):
                 w2, h2 = sprite.get_height_for_width_size()
                 w, h = max(w, w2), max(h, h2)
 
-            w = w * sprite.scale_x + props["margin_left"] + props["margin_right"]
-            h = h * sprite.scale_y + props["margin_top"] + props["margin_bottom"]
+            w = w * sprite.scale_x + \
+                props["margin_left"] + props["margin_right"]
+            h = h * sprite.scale_y + \
+                props["margin_top"] + props["margin_bottom"]
 
-
-            sprite.x = self.padding_left + x_pos + props["margin_left"] + (max(sprite.alloc_w * sprite.scale_x, w) - w) * getattr(sprite, "x_align", 0.5)
-            sprite.y = self.padding_top + y_pos + props["margin_top"] + (max(sprite.alloc_h * sprite.scale_y, h) - h) * getattr(sprite, "y_align", 0.5)
-
+            sprite.x = self.padding_left + x_pos + props["margin_left"] + (
+                max(sprite.alloc_w * sprite.scale_x, w) - w) * getattr(sprite, "x_align", 0.5)
+            sprite.y = self.padding_top + y_pos + props["margin_top"] + (
+                max(sprite.alloc_h * sprite.scale_y, h) - h) * getattr(sprite, "y_align", 0.5)
 
             actual_h = max(actual_h, h * sprite.scale_y)
 
             if (min_size + sprite_bonus) > 0:
                 if self.orient_horizontal:
-                    x_pos += int(max(w, sprite.alloc_w * sprite.scale_x)) + self.spacing
+                    x_pos += int(max(w, sprite.alloc_w *
+                                     sprite.scale_x)) + self.spacing
                 else:
-                    y_pos += max(h, sprite.alloc_h * sprite.scale_y) + self.spacing
-
+                    y_pos += max(h, sprite.alloc_h *
+                                 sprite.scale_y) + self.spacing
 
         if self.orient_horizontal:
             for sprite, props in sprites:
@@ -692,10 +703,11 @@ class Box(Container):
             if hasattr(sprite, "get_height_for_width_size"):
                 w, h = sprite.get_height_for_width_size()
             else:
-                w, h = getattr(sprite, "width", 0), getattr(sprite, "height", 0)
+                w, h = getattr(
+                    sprite, "width", 0), getattr(
+                    sprite, "height", 0)
 
             w, h = w * sprite.scale_x, h * sprite.scale_y
-
 
             if self.orient_horizontal:
                 width += w
@@ -714,8 +726,6 @@ class Box(Container):
 
         return width, height
 
-
-
     def get_min_size(self):
         if self.visible == False:
             return 0, 0
@@ -728,7 +738,9 @@ class Box(Container):
                 if hasattr(sprite, "get_min_size"):
                     w, h = sprite.get_min_size()
                 else:
-                    w, h = getattr(sprite, "width", 0), getattr(sprite, "height", 0)
+                    w, h = getattr(
+                        sprite, "width", 0), getattr(
+                        sprite, "height", 0)
 
                 w, h = w * sprite.scale_x, h * sprite.scale_y
 
@@ -747,7 +759,9 @@ class Box(Container):
             width = width + self.horizontal_padding + self.margin_left + self.margin_right
             height = height + self.vertical_padding + self.margin_top + self.margin_bottom
 
-            w, h = max(width, self.min_width or 0), max(height, self.min_height or 0)
+            w, h = max(
+                width, self.min_width or 0), max(
+                height, self.min_height or 0)
             self._cached_w, self._cached_h = w, h
 
         return self._cached_w, self._cached_h
@@ -755,17 +769,18 @@ class Box(Container):
 
 class HBox(Box):
     """A horizontally aligned box. identical to ui.Box(horizontal=True)"""
-    def __init__(self, contents = None, **kwargs):
+
+    def __init__(self, contents=None, **kwargs):
         Box.__init__(self, contents, **kwargs)
         self.orient_horizontal = True
 
 
 class VBox(Box):
     """A vertically aligned box. identical to ui.Box(horizontal=False)"""
-    def __init__(self, contents = None, **kwargs):
+
+    def __init__(self, contents=None, **kwargs):
         Box.__init__(self, contents, **kwargs)
         self.orient_horizontal = False
-
 
 
 class _DisplayLabel(graphics.Label):
@@ -779,11 +794,11 @@ class _DisplayLabel(graphics.Label):
     def __setattr__(self, name, val):
         graphics.Label.__setattr__(self, name, val)
 
-        if name in ("text", "markup", "size", "wrap", "ellipsize", "max_width"):
+        if name in ("text", "markup", "size", "wrap",
+                    "ellipsize", "max_width"):
             if name != "max_width":
                 self._cached_w, self._cached_h = None, None
             self._cached_wh_w, self._cached_wh_h = None, None
-
 
     def get_min_size(self):
         if self._cached_w:
@@ -805,7 +820,8 @@ class _DisplayLabel(graphics.Label):
 
         text = self.markup or self.text
         escape = len(self.markup) == 0
-        self._cached_wh_w, self._cached_wh_h = self.measure(text, escape, self.max_width)
+        self._cached_wh_w, self._cached_wh_h = self.measure(
+            text, escape, self.max_width)
 
         return self._cached_wh_w, self._cached_wh_h
 
@@ -825,26 +841,30 @@ class Label(Bin):
     padding = 0
     x_align = 0.5
 
-    def __init__(self, text = "", markup = "", spacing = 5, image = None,
-                 image_position = None, size = None, font_desc = None,
-                 overflow = False, color = "#000", background_color = None,
+    def __init__(self, text="", markup="", spacing=5, image=None,
+                 image_position=None, size=None, font_desc=None,
+                 overflow=False, color="#000", background_color=None,
                  **kwargs):
 
-        # TODO - am initiating table with fill = false but that yields suboptimal label placement and the 0,0 points to whatever parent gave us
+        # TODO - am initiating table with fill = false but that yields
+        # suboptimal label placement and the 0,0 points to whatever parent gave
+        # us
         Bin.__init__(self, **kwargs)
 
         #: image to put next to the label
         self.image = image
 
         # the actual container that contains the label and/or image
-        self.container = Box(spacing = spacing, fill = False,
-                             x_align = self.x_align, y_align = self.y_align)
+        self.container = Box(spacing=spacing, fill=False,
+                             x_align=self.x_align, y_align=self.y_align)
 
         if image_position is not None:
             self.image_position = image_position
 
-        self.display_label = _DisplayLabel(text = text, markup = markup, color=color, size = size)
-        self.display_label.x_align = 0 # the default is 0.5 which makes label align incorrectly on wrapping
+        self.display_label = _DisplayLabel(
+            text=text, markup=markup, color=color, size=size)
+        # the default is 0.5 which makes label align incorrectly on wrapping
+        self.display_label.x_align = 0
 
         if font_desc or self.font_desc:
             self.display_label.font_desc = font_desc or self.font_desc
@@ -884,16 +904,17 @@ class Label(Bin):
 
     def __setattr__(self, name, val):
         if name in ("text", "markup", "color", "size"):
-            if self.display_label.__dict__.get(name, "hamster_graphics_no_value_really") is val:
+            if self.display_label.__dict__.get(
+                    name, "hamster_graphics_no_value_really") is val:
                 return
             setattr(self.display_label, name, val)
         elif name in ("spacing"):
             setattr(self.container, name, val)
         else:
-            if self.__dict__.get(name, "hamster_graphics_no_value_really") is val:
+            if self.__dict__.get(
+                    name, "hamster_graphics_no_value_really") is val:
                 return
             Bin.__setattr__(self, name, val)
-
 
         if name in ('x_align', 'y_align') and hasattr(self, "container"):
             setattr(self.container, name, val)
@@ -919,29 +940,30 @@ class Label(Bin):
         elif name in ("font_desc", "size"):
             setattr(self.display_label, name, val)
 
-        if name in ("text", "markup", "image", "image_position", "overflow", "size"):
+        if name in ("text", "markup", "image",
+                    "image_position", "overflow", "size"):
             if hasattr(self, "overflow"):
                 self._position_contents()
                 self.container.queue_resize()
-
 
     def _update_max_width(self):
         # updates labels max width, respecting image and spacing
         if self.overflow is False:
             self.display_label.max_width = -1
         else:
-            w = (self.alloc_w or 0) - self.horizontal_padding - self.container.spacing
+            w = (self.alloc_w or 0) - \
+                self.horizontal_padding - self.container.spacing
             if self.image and self.image_position in ("left", "right"):
                 w -= self.image.width - self.container.spacing
             self.display_label.max_width = w
 
         self.container.queue_resize()
 
-
     def _position_contents(self):
         if self.image and (self.text or self.markup):
             self.image.expand = False
-            self.container.orient_horizontal = self.image_position in ("left", "right")
+            self.container.orient_horizontal = self.image_position in (
+                "left", "right")
 
             if self.image_position in ("top", "left"):
                 if self.container.sprites != [self.image, self.display_label]:
@@ -956,7 +978,6 @@ class Label(Bin):
             if self.container.sprites != [sprite]:
                 self.container.clear()
                 self.container.add_child(sprite)
-
 
     def __on_render(self, sprite):
         w, h = self.width, self.height

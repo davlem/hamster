@@ -23,19 +23,21 @@ logger = logging.getLogger(__name__)   # noqa: E402
 
 from hamster.lib.configuration import conf
 from gi.repository import GObject as gobject
-import dbus, dbus.mainloop.glib
+import dbus
+import dbus.mainloop.glib
 
 try:
     import evolution
     from evolution import ecal
-except:
+except BaseException:
     evolution = None
 
 try:
     import taskw
     from taskw import TaskWarrior
-except:
+except BaseException:
     taskw = None
+
 
 class ActivitiesSource(gobject.GObject):
     def __init__(self):
@@ -44,21 +46,20 @@ class ActivitiesSource(gobject.GObject):
         self.__gtg_connection = None
 
         if self.source == "evo" and not evolution:
-            self.source = "" # on failure pretend that there is no evolution
+            self.source = ""  # on failure pretend that there is no evolution
         elif self.source == "gtg":
             gobject.GObject.__init__(self)
             dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
         elif self.source == "task" and not taskw:
             self.source = ""
 
-
-    def get_activities(self, query = None):
+    def get_activities(self, query=None):
         if not self.source:
             return []
 
         if self.source == "evo":
             return [activity for activity in get_eds_tasks()
-                         if query is None or activity['name'].startswith(query)]
+                    if query is None or activity['name'].startswith(query)]
 
         elif self.source == "gtg":
             conn = self.__get_gtg_connection()
@@ -70,16 +71,16 @@ class ActivitiesSource(gobject.GObject):
             tasks = []
             try:
                 tasks = conn.GetTasks()
-            except dbus.exceptions.DBusException:  #TODO too lame to figure out how to connect to the disconnect signal
+            except dbus.exceptions.DBusException:  # TODO too lame to figure out how to connect to the disconnect signal
                 self.__gtg_connection = None
-                return self.get_activities(query) # reconnect
-
+                return self.get_activities(query)  # reconnect
 
             for task in tasks:
                 if query is None or task['title'].lower().startswith(query):
                     name = task['title']
                     if len(task['tags']):
-                        name = "%s, %s" % (name, " ".join([tag.replace("@", "#") for tag in task['tags']]))
+                        name = "%s, %s" % (name, " ".join(
+                            [tag.replace("@", "#") for tag in task['tags']]))
 
                     activities.append({"name": name,
                                        "category": ""})
@@ -87,18 +88,18 @@ class ActivitiesSource(gobject.GObject):
             return activities
 
         elif self.source == "task":
-            conn = TaskWarrior ()
+            conn = TaskWarrior()
             if not conn:
                 return []
 
             activities = []
             tasks = []
 
-            task_filter = {'status':'pending'}
+            task_filter = {'status': 'pending'}
             tasks = conn.filter_tasks(task_filter)
 
             for task in tasks:
-                name = task['description'].replace(",","")  # replace comma
+                name = task['description'].replace(",", "")  # replace comma
                 category = ""
                 if 'tags' in task:
                     name = "%s, %s " % (name, " ".join(task['tags']))
@@ -106,7 +107,7 @@ class ActivitiesSource(gobject.GObject):
                 if 'project' in task:
                     category = task['project']
 
-                activities.append({"name":name,"category":category})
+                activities.append({"name": name, "category": category})
 
             return activities
 
@@ -123,7 +124,6 @@ class ActivitiesSource(gobject.GObject):
             return None
 
 
-
 def get_eds_tasks():
     try:
         sources = ecal.list_task_sources()
@@ -135,11 +135,14 @@ def get_eds_tasks():
         for source in sources:
             category = source[0]
 
-            data = ecal.open_calendar_source(source[1], ecal.CAL_SOURCE_TYPE_TODO)
+            data = ecal.open_calendar_source(
+                source[1], ecal.CAL_SOURCE_TYPE_TODO)
             if data:
                 for task in data.get_all_objects():
-                    if task.get_status() in [ecal.ICAL_STATUS_NONE, ecal.ICAL_STATUS_INPROCESS]:
-                        tasks.append({'name': task.get_summary(), 'category' : category})
+                    if task.get_status() in [
+                            ecal.ICAL_STATUS_NONE, ecal.ICAL_STATUS_INPROCESS]:
+                        tasks.append(
+                            {'name': task.get_summary(), 'category': category})
         return tasks
     except Exception as e:
         logger.warn(e)

@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Project Hamster.  If not, see <http://www.gnu.org/licenses/>.
 
+from gi.repository import GObject as gobject
+from gi.repository import GConf as gconf
 import logging
 logger = logging.getLogger(__name__)   # noqa: E402
 
@@ -27,8 +29,7 @@ import gi
 from dbus.lowlevel import Message
 
 gi.require_version('GConf', '2.0')
-from gi.repository import GConf as gconf
-from gi.repository import GObject as gobject
+
 
 class DbusIdleListener(gobject.GObject):
     """
@@ -47,18 +48,19 @@ class DbusIdleListener(gobject.GObject):
     __gsignals__ = {
         "idle-changed": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,))
     }
+
     def __init__(self):
         gobject.GObject.__init__(self)
 
         self.screensaver_uri = "org.gnome.ScreenSaver"
         self.screen_locked = False
         self.idle_from = None
-        self.timeout_minutes = 0 # minutes after session is considered idle
-        self.idle_was_there = False # a workaround variable for pre 2.26
+        self.timeout_minutes = 0  # minutes after session is considered idle
+        self.idle_was_there = False  # a workaround variable for pre 2.26
 
         try:
             self.bus = dbus.SessionBus()
-        except:
+        except BaseException:
             return 0
         # Listen for chatter on the screensaver interface.
         # We cannot just add additional match strings to narrow down
@@ -70,9 +72,8 @@ class DbusIdleListener(gobject.GObject):
         # as any method calls on *any* interface. Therefore the
         # bus_inspector needs to do some additional filtering.
         self.bus.add_match_string_non_blocking("interface='%s'" %
-                                                           self.screensaver_uri)
+                                               self.screensaver_uri)
         self.bus.add_message_filter(self.bus_inspector)
-
 
     def bus_inspector(self, bus, message):
         """
@@ -118,7 +119,8 @@ class DbusIdleListener(gobject.GObject):
                         self.emit('idle-changed', idle_state)
                     self.idle_was_there = False
 
-                gobject.timeout_add_seconds(1, dispatch_active_changed, idle_state)
+                gobject.timeout_add_seconds(
+                    1, dispatch_active_changed, idle_state)
 
             else:
                 # dispatch idle status change to interested parties
@@ -133,7 +135,6 @@ class DbusIdleListener(gobject.GObject):
 
         return
 
-
     def getIdleFrom(self):
         if not self.idle_from:
             return dt.datetime.now()
@@ -143,4 +144,4 @@ class DbusIdleListener(gobject.GObject):
         else:
             # Only subtract idle time from the running task when
             # idleness is due to time out, not a screen lock.
-            return self.idle_from - dt.timedelta(minutes = self.timeout_minutes)
+            return self.idle_from - dt.timedelta(minutes=self.timeout_minutes)

@@ -27,6 +27,7 @@ from math import pi
 from hamster.lib import graphics, stuff
 from hamster.lib.configuration import runtime
 
+
 class TagsEntry(gtk.Entry):
     __gsignals__ = {
         'tags-selected': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
@@ -35,13 +36,15 @@ class TagsEntry(gtk.Entry):
     def __init__(self):
         gtk.Entry.__init__(self)
         self.ac_tags = None  # "autocomplete" tags
-        self.filter = None # currently applied filter string
-        self.filter_tags = [] #filtered tags
+        self.filter = None  # currently applied filter string
+        self.filter_tags = []  # filtered tags
 
-        self.popup = gtk.Window(type = gtk.WindowType.POPUP)
+        self.popup = gtk.Window(type=gtk.WindowType.POPUP)
         self.scroll_box = gtk.ScrolledWindow()
         self.scroll_box.set_shadow_type(gtk.ShadowType.IN)
-        self.scroll_box.set_policy(gtk.PolicyType.NEVER, gtk.PolicyType.AUTOMATIC)
+        self.scroll_box.set_policy(
+            gtk.PolicyType.NEVER,
+            gtk.PolicyType.AUTOMATIC)
         viewport = gtk.Viewport()
         viewport.set_shadow_type(gtk.ShadowType.NONE)
 
@@ -49,21 +52,23 @@ class TagsEntry(gtk.Entry):
         self.tag_box.connect("tag-selected", self.on_tag_selected)
         self.tag_box.connect("tag-unselected", self.on_tag_unselected)
 
-
         viewport.add(self.tag_box)
         self.scroll_box.add(viewport)
         self.popup.add(self.scroll_box)
 
-        self.set_icon_from_icon_name(gtk.EntryIconPosition.SECONDARY, "go-down-symbolic")
+        self.set_icon_from_icon_name(
+            gtk.EntryIconPosition.SECONDARY,
+            "go-down-symbolic")
 
         self.connect("icon-press", self._on_icon_press)
         self.connect("key-press-event", self._on_key_press_event)
         self.connect("focus-out-event", self._on_focus_out_event)
 
-        self._parent_click_watcher = None # bit lame but works
+        self._parent_click_watcher = None  # bit lame but works
 
         self.external_listeners = [
-            (runtime.storage, runtime.storage.connect('tags-changed', self.refresh_ac_tags))
+            (runtime.storage, runtime.storage.connect(
+                'tags-changed', self.refresh_ac_tags))
         ]
         self.show()
         self.populate_suggestions()
@@ -75,13 +80,13 @@ class TagsEntry(gtk.Entry):
         self.popup.destroy()
         self.popup = None
 
-
     def refresh_ac_tags(self, event):
         self.ac_tags = None
 
     def get_tags(self):
         # splits the string by comma and filters out blanks
-        return [tag.strip() for tag in self.get_text().split(",") if tag.strip()]
+        return [tag.strip()
+                for tag in self.get_text().split(",") if tag.strip()]
 
     def on_tag_selected(self, tag_box, tag):
         cursor_tag = self.get_cursor_tag()
@@ -94,7 +99,6 @@ class TagsEntry(gtk.Entry):
 
         self.tag_box.selected_tags = tags
 
-
         self.set_tags(tags)
         self.update_tagsline(add=True)
 
@@ -103,7 +107,7 @@ class TagsEntry(gtk.Entry):
 
     def on_tag_unselected(self, tag_box, tag):
         tags = self.get_tags()
-        while tag in tags: #it could be that dear user is mocking us and entering same tag over and over again
+        while tag in tags:  # it could be that dear user is mocking us and entering same tag over and over again
             tags.remove(tag)
 
         self.tag_box.selected_tags = tags
@@ -113,7 +117,8 @@ class TagsEntry(gtk.Entry):
 
     def hide_popup(self):
         self.popup.hide()
-        if self._parent_click_watcher and self.get_toplevel().handler_is_connected(self._parent_click_watcher):
+        if self._parent_click_watcher and self.get_toplevel(
+        ).handler_is_connected(self._parent_click_watcher):
             self.get_toplevel().disconnect(self._parent_click_watcher)
             self._parent_click_watcher = None
 
@@ -123,12 +128,13 @@ class TagsEntry(gtk.Entry):
             return
 
         if not self._parent_click_watcher:
-            self._parent_click_watcher = self.get_toplevel().connect("button-press-event", self._on_focus_out_event)
+            self._parent_click_watcher = self.get_toplevel().connect(
+                "button-press-event", self._on_focus_out_event)
 
         alloc = self.get_allocation()
         _, x, y = self.get_parent_window().get_origin()
 
-        self.popup.move(x + alloc.x,y + alloc.y + alloc.height)
+        self.popup.move(x + alloc.x, y + alloc.y + alloc.height)
 
         w = alloc.width
 
@@ -139,7 +145,8 @@ class TagsEntry(gtk.Entry):
         self.popup.show_all()
 
     def refresh_activities(self):
-        # scratch activities and categories so that they get repopulated on demand
+        # scratch activities and categories so that they get repopulated on
+        # demand
         self.activities = None
         self.categories = None
 
@@ -159,8 +166,6 @@ class TagsEntry(gtk.Entry):
 
         self.tag_box.draw(self.filter_tags)
 
-
-
     def _on_focus_out_event(self, widget, event):
         self.hide_popup()
 
@@ -179,7 +184,7 @@ class TagsEntry(gtk.Entry):
             self.show_popup()
 
     def get_cursor_tag(self):
-        #returns the tag on which the cursor is on right now
+        # returns the tag on which the cursor is on right now
         if self.get_selection_bounds():
             cursor = self.get_selection_bounds()[0]
         else:
@@ -187,8 +192,8 @@ class TagsEntry(gtk.Entry):
 
         text = self.get_text()
 
-        return text[text.rfind(",", 0, cursor)+1:max(text.find(",", cursor+1)+1, len(text))].strip()
-
+        return text[text.rfind(
+            ",", 0, cursor) + 1:max(text.find(",", cursor + 1) + 1, len(text))].strip()
 
     def replace_tag(self, old_tag, new_tag):
         tags = self.get_tags()
@@ -222,9 +227,11 @@ class TagsEntry(gtk.Entry):
     def _on_key_press_event(self, entry, event):
         if event.keyval == gdk.KEY_Tab:
             if self.popup.get_property("visible"):
-                #we have to replace
-                if self.get_text() and self.get_cursor_tag() != self.filter_tags[0]:
-                    self.replace_tag(self.get_cursor_tag(), self.filter_tags[0])
+                # we have to replace
+                if self.get_text() and self.get_cursor_tag(
+                ) != self.filter_tags[0]:
+                    self.replace_tag(
+                        self.get_cursor_tag(), self.filter_tags[0])
                     return True
                 else:
                     return False
@@ -261,7 +268,7 @@ class TagBox(graphics.Scene):
         'tag-unselected': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, (str,)),
     }
 
-    def __init__(self, interactive = True):
+    def __init__(self, interactive=True):
         graphics.Scene.__init__(self)
         self.interactive = interactive
         self.hover_tag = None
@@ -285,15 +292,15 @@ class TagBox(graphics.Scene):
         else:
             tag.color = (241, 234, 170)
 
-
     def on_tag_click(self, area, event, tag):
-        if not tag: return
+        if not tag:
+            return
 
         if tag.text in self.selected_tags:
             self.emit("tag-unselected", tag.text)
         else:
             self.emit("tag-selected", tag.text)
-        self.on_mouse_out(area, tag) #paint
+        self.on_mouse_out(area, tag)  # paint
         self.redraw()
 
     def draw(self, tags):
@@ -323,30 +330,33 @@ class TagBox(graphics.Scene):
         cur_x, cur_y = 4, 4
         tag = None
         for tag in self.tags:
-            if cur_x + tag.width >= self.width - 5:  #if we do not fit, we wrap
+            if cur_x + tag.width >= self.width - 5:  # if we do not fit, we wrap
                 cur_x = 5
                 cur_y += tag.height + 6
 
             tag.x = cur_x
             tag.y = cur_y
 
-            cur_x += tag.width + 6 #some padding too, please
+            cur_x += tag.width + 6  # some padding too, please
 
         if tag:
-            cur_y += tag.height + 2 # the last one
+            cur_y += tag.height + 2  # the last one
 
         return cur_x, cur_y
 
-class Tag(graphics.Sprite):
-    def __init__(self, text, interactive = True, color = "#F1EAAA"):
-        graphics.Sprite.__init__(self, interactive = interactive)
 
-        self.width, self.height = 0,0
+class Tag(graphics.Sprite):
+    def __init__(self, text, interactive=True, color="#F1EAAA"):
+        graphics.Sprite.__init__(self, interactive=interactive)
+
+        self.width, self.height = 0, 0
 
         font = gtk.Style().font_desc
-        font_size = int(font.get_size() * 0.8 / pango.SCALE) # 80% of default
+        font_size = int(font.get_size() * 0.8 / pango.SCALE)  # 80% of default
 
-        self.label = graphics.Label(text, size = font_size, color = (30, 30, 30), y = 1)
+        self.label = graphics.Label(
+            text, size=font_size, color=(
+                30, 30, 30), y=1)
         self.color = color
         self.add_child(self.label)
 
@@ -360,7 +370,8 @@ class Tag(graphics.Sprite):
         graphics.Sprite.__setattr__(self, name, value)
         if name == 'text' and hasattr(self, 'label'):
             self.label.text = value
-            self.__dict__['width'], self.__dict__['height'] = int(self.label.x + self.label.width + self.label.height * 0.3), self.label.height + 3
+            self.__dict__['width'], self.__dict__['height'] = int(
+                self.label.x + self.label.width + self.label.height * 0.3), self.label.height + 3
 
     def on_render(self, sprite):
         self.graphics.set_line_style(width=1)

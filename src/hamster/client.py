@@ -21,7 +21,8 @@
 
 import datetime as dt
 from calendar import timegm
-import dbus, dbus.mainloop.glib
+import dbus
+import dbus.mainloop.glib
 from gi.repository import GObject as gobject
 from hamster.lib import Fact, hamster_now
 
@@ -30,7 +31,8 @@ def from_dbus_fact(fact):
     """unpack the struct into a proper dict"""
     return Fact(activity=fact[4],
                 start_time=dt.datetime.utcfromtimestamp(fact[1]),
-                end_time=dt.datetime.utcfromtimestamp(fact[2]) if fact[2] else None,
+                end_time=dt.datetime.utcfromtimestamp(
+                    fact[2]) if fact[2] else None,
                 description=fact[3],
                 activity_id=fact[5],
                 category=fact[6],
@@ -64,15 +66,28 @@ class Storage(gobject.GObject):
 
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
         self.bus = dbus.SessionBus()
-        self._connection = None # will be initiated on demand
+        self._connection = None  # will be initiated on demand
 
-        self.bus.add_signal_receiver(self._on_tags_changed, 'TagsChanged', 'org.gnome.Hamster')
-        self.bus.add_signal_receiver(self._on_facts_changed, 'FactsChanged', 'org.gnome.Hamster')
-        self.bus.add_signal_receiver(self._on_activities_changed, 'ActivitiesChanged', 'org.gnome.Hamster')
-        self.bus.add_signal_receiver(self._on_toggle_called, 'ToggleCalled', 'org.gnome.Hamster')
+        self.bus.add_signal_receiver(
+            self._on_tags_changed,
+            'TagsChanged',
+            'org.gnome.Hamster')
+        self.bus.add_signal_receiver(
+            self._on_facts_changed,
+            'FactsChanged',
+            'org.gnome.Hamster')
+        self.bus.add_signal_receiver(
+            self._on_activities_changed,
+            'ActivitiesChanged',
+            'org.gnome.Hamster')
+        self.bus.add_signal_receiver(
+            self._on_toggle_called,
+            'ToggleCalled',
+            'org.gnome.Hamster')
 
         self.bus.add_signal_receiver(self._on_dbus_connection_change, 'NameOwnerChanged',
                                      'org.freedesktop.DBus', arg0='org.gnome.Hamster')
+
     @staticmethod
     def _to_dict(columns, result_list):
         return [dict(zip(columns, row)) for row in result_list]
@@ -81,7 +96,7 @@ class Storage(gobject.GObject):
     def conn(self):
         if not self._connection:
             self._connection = dbus.Interface(self.bus.get_object('org.gnome.Hamster',
-                                                              '/org/gnome/Hamster'),
+                                                                  '/org/gnome/Hamster'),
                                               dbus_interface='org.gnome.Hamster')
         return self._connection
 
@@ -124,21 +139,22 @@ class Storage(gobject.GObject):
                                                                     end_date,
                                                                     search_terms)]
 
-    def get_activities(self, search = ""):
+    def get_activities(self, search=""):
         """returns list of activities name matching search criteria.
            results are sorted by most recent usage.
            search is case insensitive
         """
-        return self._to_dict(('name', 'category'), self.conn.GetActivities(search))
+        return self._to_dict(('name', 'category'),
+                             self.conn.GetActivities(search))
 
     def get_categories(self):
         """returns list of categories"""
         return self._to_dict(('id', 'name'), self.conn.GetCategories())
 
-    def get_tags(self, only_autocomplete = False):
+    def get_tags(self, only_autocomplete=False):
         """returns list of all tags. by default only those that have been set for autocomplete"""
-        return self._to_dict(('id', 'name', 'autocomplete'), self.conn.GetTags(only_autocomplete))
-
+        return self._to_dict(('id', 'name', 'autocomplete'),
+                             self.conn.GetTags(only_autocomplete))
 
     def get_tag_ids(self, tags):
         """find tag IDs by name. tags should be a list of labels
@@ -147,7 +163,8 @@ class Storage(gobject.GObject):
            be created.
            on database changes the `tags-changed` signal is emitted.
         """
-        return self._to_dict(('id', 'name', 'autocomplete'), self.conn.GetTagIds(tags))
+        return self._to_dict(('id', 'name', 'autocomplete'),
+                             self.conn.GetTagIds(tags))
 
     def update_autocomplete_tags(self, tags):
         """update list of tags that should autocomplete. this list replaces
@@ -158,7 +175,7 @@ class Storage(gobject.GObject):
         """returns fact by it's ID"""
         return from_dbus_fact(self.conn.GetFact(id))
 
-    def add_fact(self, fact, temporary_activity = False):
+    def add_fact(self, fact, temporary_activity=False):
         """Add fact. activity name can use the
         `[-]start_time[-end_time] activity@category, description #tag1 #tag2`
         syntax, or params can be stated explicitly.
@@ -170,7 +187,8 @@ class Storage(gobject.GObject):
 
         serialized = fact.serialized_name()
 
-        start_timestamp = timegm((fact.start_time or hamster_now()).timetuple())
+        start_timestamp = timegm(
+            (fact.start_time or hamster_now()).timetuple())
 
         end_timestamp = fact.end_time or 0
         if end_timestamp:
@@ -182,10 +200,11 @@ class Storage(gobject.GObject):
                                    temporary_activity)
 
         # TODO - the parsing should happen just once and preferably here
-        # we should feed (serialized_activity, start_time, end_time) into AddFact and others
+        # we should feed (serialized_activity, start_time, end_time) into
+        # AddFact and others
         return new_id
 
-    def stop_tracking(self, end_time = None):
+    def stop_tracking(self, end_time=None):
         """Stop tracking current activity. end_time can be passed in if the
         activity should have other end time than the current moment"""
         end_time = timegm((end_time or hamster_now()).timetuple())
@@ -195,12 +214,11 @@ class Storage(gobject.GObject):
         "delete fact from database"
         self.conn.RemoveFact(fact_id)
 
-    def update_fact(self, fact_id, fact, temporary_activity = False):
+    def update_fact(self, fact_id, fact, temporary_activity=False):
         """Update fact values. See add_fact for rules.
         Update is performed via remove/insert, so the
         fact_id after update should not be used anymore. Instead use the ID
         from the fact dict that is returned by this function"""
-
 
         start_time = timegm((fact.start_time or hamster_now()).timetuple())
 
@@ -208,25 +226,25 @@ class Storage(gobject.GObject):
         if end_time:
             end_time = timegm(end_time.timetuple())
 
-        new_id =  self.conn.UpdateFact(fact_id,
-                                       fact.serialized_name(),
-                                       start_time,
-                                       end_time,
-                                       temporary_activity)
+        new_id = self.conn.UpdateFact(fact_id,
+                                      fact.serialized_name(),
+                                      start_time,
+                                      end_time,
+                                      temporary_activity)
         return new_id
 
-
-    def get_category_activities(self, category_id = None):
+    def get_category_activities(self, category_id=None):
         """Return activities for category. If category is not specified, will
         return activities that have no category"""
         category_id = category_id or -1
-        return self._to_dict(('id', 'name', 'category_id', 'category'), self.conn.GetCategoryActivities(category_id))
+        return self._to_dict(('id', 'name', 'category_id', 'category'),
+                             self.conn.GetCategoryActivities(category_id))
 
     def get_category_id(self, category_name):
         """returns category id by name"""
         return self.conn.GetCategoryId(category_name)
 
-    def get_activity_by_name(self, activity, category_id = None, resurrect = True):
+    def get_activity_by_name(self, activity, category_id=None, resurrect=True):
         """returns activity dict by name and optionally filtering by category.
            if activity is found but is marked as deleted, it will be resurrected
            unless told otherwise in the resurrect param
@@ -247,7 +265,7 @@ class Storage(gobject.GObject):
     def update_activity(self, id, name, category_id):
         return self.conn.UpdateActivity(id, name, category_id)
 
-    def add_activity(self, name, category_id = -1):
+    def add_activity(self, name, category_id=-1):
         return self.conn.AddActivity(name, category_id)
 
     def update_category(self, id, name):

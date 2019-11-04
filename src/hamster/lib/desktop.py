@@ -32,7 +32,7 @@ import dbus
 
 class DesktopIntegrations(object):
     def __init__(self, storage):
-        self.storage = storage # can't use client as then we get in a dbus loop
+        self.storage = storage  # can't use client as then we get in a dbus loop
         self._last_notification = None
 
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
@@ -48,7 +48,6 @@ class DesktopIntegrations(object):
 
         gobject.timeout_add_seconds(60, self.check_hamster)
 
-
     def check_hamster(self):
         """refresh hamster every x secs - load today, check last activity etc."""
         try:
@@ -60,7 +59,6 @@ class DesktopIntegrations(object):
             logger.error("Error while refreshing: %s" % e)
         finally:  # we want to go on no matter what, so in case of any error we find out about it sooner
             return True
-
 
     def check_user(self, todays_facts):
         """check if we need to notify user perhaps"""
@@ -76,24 +74,24 @@ class DesktopIntegrations(object):
         # update duration of current task
         if last_activity and not last_activity['end_time']:
             delta = now - last_activity['start_time']
-            duration = delta.seconds /  60
+            duration = delta.seconds / 60
 
             if duration and duration % interval == 0:
                 message = _("Working on %s") % last_activity['name']
                 self.notify_user(message)
 
         elif self.conf_notify_on_idle:
-            #if we have no last activity, let's just calculate duration from 00:00
+            # if we have no last activity, let's just calculate duration from
+            # 00:00
             if (now.minute + now.hour * 60) % interval == 0:
                 self.notify_user(_("No activity"))
-
 
     def notify_user(self, summary="", details=""):
         if not hasattr(self, "_notification_conn"):
             self._notification_conn = dbus.Interface(self.bus.get_object('org.freedesktop.Notifications',
                                                                          '/org/freedesktop/Notifications',
-                                                                           follow_name_owner_changes=True),
-                                                           dbus_interface='org.freedesktop.Notifications')
+                                                                         follow_name_owner_changes=True),
+                                                     dbus_interface='org.freedesktop.Notifications')
         conn = self._notification_conn
 
         notification = conn.Notify("Project Hamster",
@@ -102,10 +100,10 @@ class DesktopIntegrations(object):
                                    summary,
                                    details,
                                    [],
-                                   {"urgency": dbus.Byte(0), "transient" : True},
+                                   {"urgency": dbus.Byte(
+                                       0), "transient": True},
                                    -1)
         self._last_notification = notification
-
 
     def on_idle_changed(self, event, state):
         # state values: 0 = active, 1 = idle
@@ -113,7 +111,6 @@ class DesktopIntegrations(object):
             idle_from = self.idle_listener.getIdleFrom()
             idle_from = timegm(idle_from.timetuple())
             self.storage.StopTracking(idle_from)
-
 
     def on_conf_changed(self, event, key, value):
         if hasattr(self, "conf_%s" % key):

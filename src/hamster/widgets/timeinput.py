@@ -27,22 +27,21 @@ from gi.repository import GObject as gobject
 
 from hamster.lib.stuff import format_duration, hamster_round
 
+
 class TimeInput(gtk.Entry):
     __gsignals__ = {
         'time-entered': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
     }
 
-
-    def __init__(self, time = None, start_time = None):
+    def __init__(self, time=None, start_time=None):
         gtk.Entry.__init__(self)
         self.news = False
-        self.set_width_chars(7) #7 is like 11:24pm
+        self.set_width_chars(7)  # 7 is like 11:24pm
 
         self.time = time
         self.set_start_time(start_time)
 
-
-        self.popup = gtk.Window(type = gtk.WindowType.POPUP)
+        self.popup = gtk.Window(type=gtk.WindowType.POPUP)
         time_box = gtk.ScrolledWindow()
         time_box.set_policy(gtk.PolicyType.NEVER, gtk.PolicyType.ALWAYS)
         time_box.set_shadow_type(gtk.ShadowType.IN)
@@ -60,14 +59,16 @@ class TimeInput(gtk.Entry):
         time_box.add(self.time_tree)
         self.popup.add(time_box)
 
-        self.set_icon_from_icon_name(gtk.EntryIconPosition.PRIMARY, "edit-clear-all-symbolic")
+        self.set_icon_from_icon_name(
+            gtk.EntryIconPosition.PRIMARY,
+            "edit-clear-all-symbolic")
 
         self.connect("icon-release", self._on_icon_release)
         self.connect("button-press-event", self._on_button_press_event)
         self.connect("key-press-event", self._on_key_press_event)
         self.connect("focus-in-event", self._on_focus_in_event)
         self.connect("focus-out-event", self._on_focus_out_event)
-        self._parent_click_watcher = None # bit lame but works
+        self._parent_click_watcher = None  # bit lame but works
 
         self.connect("changed", self._on_text_changed)
         self.show()
@@ -134,8 +135,8 @@ class TimeInput(gtk.Entry):
 
         # strip everything non-numeric and consider hours to be first number
         # and minutes - second number
-        numbers = re.split("\D", str_time)
-        numbers = [x for x in numbers if x!=""]
+        numbers = re.split(r"\D", str_time)
+        numbers = [x for x in numbers if x != ""]
 
         hours, minutes = None, None
 
@@ -152,9 +153,8 @@ class TimeInput(gtk.Entry):
 
         return dt.time(hours, minutes)
 
-
     def _select_time(self, time_text):
-        #convert forth and back so we have text formated as we want
+        # convert forth and back so we have text formated as we want
         time = self.figure_time(time_text)
         time_text = self._format_time(time)
 
@@ -169,7 +169,6 @@ class TimeInput(gtk.Entry):
         if time is None:
             return ""
         return time.strftime("%H:%M").lower()
-
 
     def _on_focus_in_event(self, entry, event):
         self.show_popup()
@@ -189,14 +188,16 @@ class TimeInput(gtk.Entry):
         self.emit("changed")
 
     def hide_popup(self):
-        if self._parent_click_watcher and self.get_toplevel().handler_is_connected(self._parent_click_watcher):
+        if self._parent_click_watcher and self.get_toplevel(
+        ).handler_is_connected(self._parent_click_watcher):
             self.get_toplevel().disconnect(self._parent_click_watcher)
             self._parent_click_watcher = None
         self.popup.hide()
 
     def show_popup(self):
         if not self._parent_click_watcher:
-            self._parent_click_watcher = self.get_toplevel().connect("button-press-event", self._on_focus_out_event)
+            self._parent_click_watcher = self.get_toplevel().connect(
+                "button-press-event", self._on_focus_out_event)
 
         # we will be adding things, need datetime
         i_time_0 = dt.datetime.combine(self.start_date or dt.date.today(),
@@ -205,16 +206,17 @@ class TimeInput(gtk.Entry):
         if self.start_time is None:
             # full 24 hours
             i_time = i_time_0
-            interval = dt.timedelta(minutes = 15)
-            end_time = i_time_0 + dt.timedelta(days = 1)
+            interval = dt.timedelta(minutes=15)
+            end_time = i_time_0 + dt.timedelta(days=1)
         else:
             # from start time to start time + 12 hours
-            interval = dt.timedelta(minutes = 15)
+            interval = dt.timedelta(minutes=15)
             i_time = i_time_0 + interval
-            end_time = i_time_0 + dt.timedelta(hours = 12)
+            end_time = i_time_0 + dt.timedelta(hours=12)
 
         time = self.figure_time(self.get_text())
-        focus_time = dt.datetime.combine(dt.date.today(), time) if time else None
+        focus_time = dt.datetime.combine(
+            dt.date.today(), time) if time else None
         hours = gtk.ListStore(str)
 
         i, focus_row = 0, None
@@ -236,21 +238,22 @@ class TimeInput(gtk.Entry):
 
         self.time_tree.set_model(hours)
 
-        #focus on row
-        if focus_row != None:
+        # focus on row
+        if focus_row is not None:
             selection = self.time_tree.get_selection()
             selection.select_path(focus_row)
-            self.time_tree.scroll_to_cell(focus_row, use_align = True, row_align = 0.4)
+            self.time_tree.scroll_to_cell(
+                focus_row, use_align=True, row_align=0.4)
 
-        #move popup under the widget
+        # move popup under the widget
         alloc = self.get_allocation()
         w = alloc.width
         self.time_tree.set_size_request(w, alloc.height * 5)
 
         window = self.get_parent_window()
-        dmmy, x, y= window.get_origin()
+        dmmy, x, y = window.get_origin()
 
-        self.popup.move(x + alloc.x,y + alloc.y + alloc.height)
+        self.popup.move(x + alloc.x, y + alloc.y + alloc.height)
         self.popup.resize(*self.time_tree.get_size_request())
         self.popup.show_all()
 
@@ -265,10 +268,10 @@ class TimeInput(gtk.Entry):
         time = model.get_value(iter, 0)
         self._select_time(time)
 
-
     def _on_key_press_event(self, entry, event):
-        if event.keyval not in (gdk.KEY_Up, gdk.KEY_Down, gdk.KEY_Return, gdk.KEY_KP_Enter):
-            #any kind of other input
+        if event.keyval not in (gdk.KEY_Up, gdk.KEY_Down,
+                                gdk.KEY_Return, gdk.KEY_KP_Enter):
+            # any kind of other input
             self.hide_popup()
             return False
 
@@ -276,12 +279,11 @@ class TimeInput(gtk.Entry):
         if not iter:
             return
 
-
         i = model.get_path(iter)[0]
         if event.keyval == gdk.KEY_Up:
-            i-=1
+            i -= 1
         elif event.keyval == gdk.KEY_Down:
-            i+=1
+            i += 1
         elif (event.keyval == gdk.KEY_Return or
               event.keyval == gdk.KEY_KP_Enter):
 
@@ -297,10 +299,11 @@ class TimeInput(gtk.Entry):
         i = min(max(i, 0), len(self.time_tree.get_model()) - 1)
 
         self.time_tree.set_cursor(i)
-        self.time_tree.scroll_to_cell(i, use_align = True, row_align = 0.4)
+        self.time_tree.scroll_to_cell(i, use_align=True, row_align=0.4)
 
         # if popup is not visible, display it on up and down
-        if event.keyval in (gdk.KEY_Up, gdk.KEY_Down) and self.popup.props.visible == False:
+        if event.keyval in (
+                gdk.KEY_Up, gdk.KEY_Down) and self.popup.props.visible == False:
             self.show_popup()
 
         return True
