@@ -129,8 +129,9 @@ sudo ./waf uninstall
 
 1. [Fork](https://github.com/projecthamster/hamster/fork) this project
 2. Create a topic branch - `git checkout -b my_branch`
-3. Push to your branch - `git push origin my_branch`
-4. Submit a [Pull Request](https://github.com/projecthamster/hamster/pulls) with your branch
-5. That's it!
+3. Style code with pep8 tools - `autopep8 *.py`
+4. Push to your branch - `git push origin my_branch`
+5. Submit a [Pull Request](https://github.com/projecthamster/hamster/pulls) with your branch
+6. That's it!
 
 See [How to contribute](https://github.com/projecthamster/hamster/wiki/How-to-contribute) for more information.
