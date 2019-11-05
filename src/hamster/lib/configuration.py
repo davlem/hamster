@@ -17,26 +17,25 @@
 # You should have received a copy of the GNU General Public License
 # along with Project Hamster.  If not, see <http://www.gnu.org/licenses/>.
 
-from gi.repository import GConf as gconf
 """
 gconf part of this code copied from Gimmie (c) Alex Gravely via Conduit (c)
 John Stowers, 2006
 License: GPLv2
 """
 
-import logging
-logger = logging.getLogger(__name__)   # noqa: E402
-
 import os
-from hamster.client import Storage
-from xdg.BaseDirectory import xdg_data_home
+import logging
 import datetime as dt
-
-from gi.repository import GObject as gobject
-from gi.repository import Gtk as gtk
-
+from xdg.BaseDirectory import xdg_data_home
 import gi
 gi.require_version('GConf', '2.0')
+from gi.repository import GObject as gobject
+from gi.repository import Gtk as gtk
+from gi.repository import GConf as gconf
+
+from hamster.client import Storage
+
+logger = logging.getLogger(__name__)   # noqa: E402
 
 
 class Controller(gobject.GObject):

@@ -5,21 +5,20 @@
 # Dual licensed under the MIT or GPL Version 2 licenses.
 # See http://github.com/tbaugis/hamster_experiments/blob/master/README.textile
 
+import re
 from collections import defaultdict
 import math
 import datetime as dt
-
-
+import cairo
+import gi
+gi.require_version('PangoCairo', '1.0')
 from gi.repository import Gtk as gtk
 from gi.repository import Gdk as gdk
 from gi.repository import GObject as gobject
 from gi.repository import Pango as pango
 from gi.repository import PangoCairo as pangocairo
-
-import cairo
 from gi.repository import GdkPixbuf
 
-import re
 
 try:
     from hamster.lib import pytweener

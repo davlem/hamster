@@ -17,18 +17,17 @@
 # You should have received a copy of the GNU General Public License
 # along with Project Hamster.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+import datetime as dt
+import dbus
+from dbus.lowlevel import Message
+import gi
+gi.require_version('GConf', '2.0')
 from gi.repository import GObject as gobject
 from gi.repository import GConf as gconf
-import logging
+
+
 logger = logging.getLogger(__name__)   # noqa: E402
-
-import dbus
-import datetime as dt
-import gi
-
-from dbus.lowlevel import Message
-
-gi.require_version('GConf', '2.0')
 
 
 class DbusIdleListener(gobject.GObject):

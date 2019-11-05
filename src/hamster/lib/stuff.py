@@ -26,16 +26,17 @@ import locale
 import re
 import time
 import calendar
+import logging
+import datetime as dt
 from itertools import groupby
+import gi
+gi.require_version('Gtk', '3.0')
+gi.require_version('Pango', '1.0')
 from gi.repository import Pango as pango
 from gi.repository import Gtk as gtk
-import logging
+
+
 logger = logging.getLogger(__name__)   # noqa: E402
-
-import gi
-import datetime as dt
-
-gi.require_version('Gtk', '3.0')
 
 
 def datetime_to_hamsterday(civil_date_time):
