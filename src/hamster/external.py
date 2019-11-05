@@ -71,7 +71,9 @@ class ActivitiesSource(gobject.GObject):
             tasks = []
             try:
                 tasks = conn.GetTasks()
-            except dbus.exceptions.DBusException:  # TODO too lame to figure out how to connect to the disconnect signal
+            except dbus.exceptions.DBusException:
+                # TODO too lame to figure out how to connect
+                # to the disconnect signal
                 self.__gtg_connection = None
                 return self.get_activities(query)  # reconnect
 
@@ -117,8 +119,10 @@ class ActivitiesSource(gobject.GObject):
             return self.__gtg_connection
 
         if bus.name_has_owner("org.gnome.GTG"):
-            self.__gtg_connection = dbus.Interface(bus.get_object('org.gnome.GTG', '/org/gnome/GTG'),
-                                                   dbus_interface='org.gnome.GTG')
+            self.__gtg_connection = dbus.Interface(
+                bus.get_object('org.gnome.GTG', '/org/gnome/GTG'),
+                dbus_interface='org.gnome.GTG'
+                )
             return self.__gtg_connection
         else:
             return None

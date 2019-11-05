@@ -46,7 +46,11 @@ class DbusIdleListener(gobject.GObject):
     and is_screen_locked members are updated appropriately.
     """
     __gsignals__ = {
-        "idle-changed": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,))
+        "idle-changed": (
+            gobject.SIGNAL_RUN_LAST,
+            gobject.TYPE_NONE,
+            (gobject.TYPE_PYOBJECT,)
+            )
     }
 
     def __init__(self):

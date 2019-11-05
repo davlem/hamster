@@ -43,9 +43,9 @@ def from_dbus_fact(fact):
 
 class Storage(gobject.GObject):
     """Hamster client class, communicating to hamster storage daemon via d-bus.
-       Subscribe to the `tags-changed`, `facts-changed` and `activities-changed`
-       signals to be notified when an appropriate factoid of interest has been
-       changed.
+       Subscribe to the `tags-changed`, `facts-changed`
+       and `activities-changed` signals to be notified when an appropriate
+       factoid of interest has been changed.
 
        In storage a distinguishment is made between the classificator of
        activities and the event in tracking log.
@@ -57,7 +57,9 @@ class Storage(gobject.GObject):
     __gsignals__ = {
         "tags-changed": (gobject.SignalFlags.RUN_LAST, gobject.TYPE_NONE, ()),
         "facts-changed": (gobject.SignalFlags.RUN_LAST, gobject.TYPE_NONE, ()),
-        "activities-changed": (gobject.SignalFlags.RUN_LAST, gobject.TYPE_NONE, ()),
+        "activities-changed": (
+            gobject.SignalFlags.RUN_LAST, gobject.TYPE_NONE, ()
+            ),
         "toggle-called": (gobject.SignalFlags.RUN_LAST, gobject.TYPE_NONE, ()),
     }
 
@@ -85,8 +87,12 @@ class Storage(gobject.GObject):
             'ToggleCalled',
             'org.gnome.Hamster')
 
-        self.bus.add_signal_receiver(self._on_dbus_connection_change, 'NameOwnerChanged',
-                                     'org.freedesktop.DBus', arg0='org.gnome.Hamster')
+        self.bus.add_signal_receiver(
+            self._on_dbus_connection_change,
+            'NameOwnerChanged',
+            'org.freedesktop.DBus',
+            arg0='org.gnome.Hamster'
+            )
 
     @staticmethod
     def _to_dict(columns, result_list):
@@ -95,9 +101,13 @@ class Storage(gobject.GObject):
     @property
     def conn(self):
         if not self._connection:
-            self._connection = dbus.Interface(self.bus.get_object('org.gnome.Hamster',
-                                                                  '/org/gnome/Hamster'),
-                                              dbus_interface='org.gnome.Hamster')
+            self._connection = dbus.Interface(
+                self.bus.get_object(
+                    'org.gnome.Hamster',
+                    '/org/gnome/Hamster'
+                    ),
+                dbus_interface='org.gnome.Hamster'
+                )
         return self._connection
 
     def _on_dbus_connection_change(self, name, old, new):
@@ -129,15 +139,18 @@ class Storage(gobject.GObject):
         """Returns facts for the time span matching the optional filter criteria.
            In search terms comma (",") translates to boolean OR and space (" ")
            to boolean AND.
-           Filter is applied to tags, categories, activity names and description
+           Filter is applied to tags, categories, activity names
+           and description
         """
         date = timegm(date.timetuple())
         end_date = end_date or 0
         if end_date:
             end_date = timegm(end_date.timetuple())
-        return [from_dbus_fact(fact) for fact in self.conn.GetFacts(date,
-                                                                    end_date,
-                                                                    search_terms)]
+        return [from_dbus_fact(fact) for fact in self.conn.GetFacts(
+            date,
+            end_date,
+            search_terms
+            )]
 
     def get_activities(self, search=""):
         """returns list of activities name matching search criteria.
@@ -152,7 +165,8 @@ class Storage(gobject.GObject):
         return self._to_dict(('id', 'name'), self.conn.GetCategories())
 
     def get_tags(self, only_autocomplete=False):
-        """returns list of all tags. by default only those that have been set for autocomplete"""
+        """returns list of all tags. by default only those that have been
+        set for autocomplete"""
         return self._to_dict(('id', 'name', 'autocomplete'),
                              self.conn.GetTags(only_autocomplete))
 
@@ -246,8 +260,8 @@ class Storage(gobject.GObject):
 
     def get_activity_by_name(self, activity, category_id=None, resurrect=True):
         """returns activity dict by name and optionally filtering by category.
-           if activity is found but is marked as deleted, it will be resurrected
-           unless told otherwise in the resurrect param
+           if activity is found but is marked as deleted, it will be
+           resurrected unless told otherwise in the resurrect param
         """
         category_id = category_id or 0
         return self.conn.GetActivityByName(activity, category_id, resurrect)

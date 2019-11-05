@@ -196,16 +196,23 @@ class HTMLWriter(ReportWriter):
 
         if start_date.year != end_date.year:
             self.title = _(
-                "Activity report for %(start_B)s %(start_d)s, %(start_Y)s – %(end_B)s %(end_d)s, %(end_Y)s") % dates_dict
+                "Activity report for %(start_B)s %(start_d)s, %(start_Y)s – "
+                "%(end_B)s %(end_d)s, %(end_Y)s"
+                ) % dates_dict
         elif start_date.month != end_date.month:
             self.title = _(
-                "Activity report for %(start_B)s %(start_d)s – %(end_B)s %(end_d)s, %(end_Y)s") % dates_dict
+                "Activity report for %(start_B)s %(start_d)s – %(end_B)s "
+                "%(end_d)s, %(end_Y)s"
+                ) % dates_dict
         elif start_date == end_date:
             self.title = _(
-                "Activity report for %(start_B)s %(start_d)s, %(start_Y)s") % dates_dict
+                "Activity report for %(start_B)s %(start_d)s, %(start_Y)s"
+                ) % dates_dict
         else:
             self.title = _(
-                "Activity report for %(start_B)s %(start_d)s – %(end_d)s, %(end_Y)s") % dates_dict
+                "Activity report for %(start_B)s %(start_d)s – %(end_d)s, "
+                "%(end_Y)s"
+                ) % dates_dict
 
         # read the template, allow override
         self.override = os.path.exists(
@@ -322,8 +329,12 @@ class HTMLWriter(ReportWriter):
 
             data_dir=runtime.data_dir,
             show_template=_("Show template"),
-            template_instructions=_("You can override it by storing your version in %(home_folder)s") % {
-                'home_folder': runtime.home_data_dir},
+            template_instructions=_(
+                "You can override it by storing your version in "
+                "%(home_folder)s"
+                ) % {
+                    'home_folder': runtime.home_data_dir
+                    },
 
             start_date=timegm(self.start_date.timetuple()),
             end_date=timegm(self.end_date.timetuple()),

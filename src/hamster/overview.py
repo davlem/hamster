@@ -293,9 +293,11 @@ class Totals(graphics.Scene):
         main = layout.HBox(padding_top=10)
         box.add_child(main)
 
-        self.stub_label = layout.Label(markup="<b>Here be stats,\ntune in laters!</b>",
-                                       color="#bbb",
-                                       size=60)
+        self.stub_label = layout.Label(
+            markup="<b>Here be stats,\ntune in laters!</b>",
+            color="#bbb",
+            size=60
+            )
 
         self.activities_chart = HorizontalBarChart()
         self.categories_chart = HorizontalBarChart()
@@ -337,13 +339,15 @@ class Totals(graphics.Scene):
         self.categories_chart.set_values(totals['category'])
         self.tag_chart.set_values(totals['tag'])
 
-        self.stacked_bar.set_items(
-            [(cat, delta.total_seconds() / 60.0) for cat, delta in totals['category']])
+        self.stacked_bar.set_items([(
+                cat, delta.total_seconds() / 60.0
+                ) for cat, delta in totals['category']
+            ])
 
         grand_total = sum(delta.total_seconds() / 60
                           for __, delta in totals['activity'])
-        self.category_totals.markup = "<b>Total: </b>%s; " % stuff.format_duration(
-            grand_total)
+        self.category_totals.markup = (
+            "<b>Total: </b>%s; ") % stuff.format_duration(grand_total)
         self.category_totals.markup += ", ".join(
             "<b>%s:</b> %s" %
             (stuff.escape_pango(cat),
@@ -442,8 +446,10 @@ class Overview(Controller):
         space = gtk.Box(border_width=5)
         self.search_box.add(space)
         self.filter_entry = gtk.Entry()
-        self.filter_entry.set_icon_from_icon_name(gtk.EntryIconPosition.PRIMARY,
-                                                  "edit-find-symbolic")
+        self.filter_entry.set_icon_from_icon_name(
+            gtk.EntryIconPosition.PRIMARY,
+            "edit-find-symbolic"
+            )
         self.filter_entry.connect("changed", self.on_search_changed)
         self.filter_entry.connect("icon-press", self.on_search_icon_press)
 
@@ -545,11 +551,15 @@ class Overview(Controller):
 
     def on_search_changed(self, entry):
         if entry.get_text():
-            self.filter_entry.set_icon_from_icon_name(gtk.EntryIconPosition.SECONDARY,
-                                                      "edit-clear-symbolic")
+            self.filter_entry.set_icon_from_icon_name(
+                gtk.EntryIconPosition.SECONDARY,
+                "edit-clear-symbolic"
+                )
         else:
-            self.filter_entry.set_icon_from_icon_name(gtk.EntryIconPosition.SECONDARY,
-                                                      None)
+            self.filter_entry.set_icon_from_icon_name(
+                gtk.EntryIconPosition.SECONDARY,
+                None
+                )
         self.find_facts()
 
     def on_search_icon_press(self, entry, position, event):
@@ -594,7 +604,9 @@ class Overview(Controller):
             dialog = gtk.MessageDialog(self.window, 0, gtk.MessageType.ERROR,
                                        gtk.ButtonsType.CLOSE,
                                        _("Failed to open {}").format(uri))
-            fmt = _('Error: "{}" - is a help browser installed on this computer?')
+            fmt = _(
+                'Error: "{}" - is a help browser installed on this computer?'
+                )
             dialog.format_secondary_text(fmt.format(msg))
             dialog.run()
             dialog.destroy()

@@ -51,8 +51,10 @@ class CustomFactController(gobject.GObject):
 
         self.category_entry = widgets.CategoryEntry(
             widget=self.get_widget('category'))
-        self.activity_entry = widgets.ActivityEntry(widget=self.get_widget('activity'),
-                                                    category_widget=self.category_entry)
+        self.activity_entry = widgets.ActivityEntry(
+            widget=self.get_widget('activity'),
+            category_widget=self.category_entry
+            )
 
         self.cmdline = widgets.CmdLineEntry()
         self.get_widget("command line box").add(self.cmdline)
@@ -67,14 +69,18 @@ class CustomFactController(gobject.GObject):
         self.description_box = self.get_widget('description')
         self.description_buffer = self.description_box.get_buffer()
 
-        self.end_date = widgets.Calendar(widget=self.get_widget("end date"),
-                                         expander=self.get_widget("end date expander"))
+        self.end_date = widgets.Calendar(
+            widget=self.get_widget("end date"),
+            expander=self.get_widget("end date expander")
+            )
 
         self.end_time = widgets.TimeInput()
         self.get_widget("end time box").add(self.end_time)
 
-        self.start_date = widgets.Calendar(widget=self.get_widget("start date"),
-                                           expander=self.get_widget("start date expander"))
+        self.start_date = widgets.Calendar(
+            widget=self.get_widget("start date"),
+            expander=self.get_widget("start date expander")
+            )
 
         self.start_time = widgets.TimeInput()
         self.get_widget("start time box").add(self.start_time)
@@ -255,13 +261,17 @@ class CustomFactController(gobject.GObject):
             new_time = self.start_time.time
             if new_time:
                 if self.fact.start_time:
-                    new_start_time = dt.datetime.combine(self.fact.start_time.date(),
-                                                         new_time)
+                    new_start_time = dt.datetime.combine(
+                        self.fact.start_time.date(),
+                        new_time
+                        )
                 else:
                     # date not specified; result must fall in current
                     # hamster_day
-                    new_start_time = hamsterday_time_to_datetime(hamster_today(),
-                                                                 new_time)
+                    new_start_time = hamsterday_time_to_datetime(
+                        hamster_today(),
+                        new_time
+                        )
             else:
                 new_start_time = None
             self.fact.start_time = new_start_time
@@ -346,20 +356,24 @@ class CustomFactController(gobject.GObject):
 
         if (fact.delta < dt.timedelta(0)) and fact.end_time:
             fact.end_time += dt.timedelta(days=1)
-            markup = dedent("""\
-                            <b>Working late ?</b>
-                            Duration would be negative.
-                            This happens when the activity crosses the
-                            hamster day start time ({:%H:%M} from tracking settings).
+            markup = dedent(
+                """\
+                <b>Working late ?</b>
+                Duration would be negative.
+                This happens when the activity crosses the
+                hamster day start time ({:%H:%M} from tracking settings).
 
-                            Changing the end time date to the next day.
-                            Pressing the button would save
-                            an actvity going from
-                            {}
-                            to
-                            {}
-                            (in civil local time)
-                            """.format(conf.day_start, fact.start_time, fact.end_time))
+                Changing the end time date to the next day.
+                Pressing the button would save
+                an actvity going from
+                {}
+                to
+                {}
+                (in civil local time)
+                """.format(
+                    conf.day_start, fact.start_time, fact.end_time
+                    )
+                )
             self.update_status(status="warning", markup=markup)
             return fact
 
@@ -390,8 +404,13 @@ class CustomFactController(gobject.GObject):
                   or self.end_time.popup.get_property("visible")
                   or self.tags_entry.popup.get_property("visible"))
 
-        if (event_key.keyval == gdk.KEY_Escape or
-                (event_key.keyval == gdk.KEY_w and event_key.state & gdk.ModifierType.CONTROL_MASK)):
+        if (
+            event_key.keyval == gdk.KEY_Escape or
+            (
+                event_key.keyval == gdk.KEY_w and
+                event_key.state & gdk.ModifierType.CONTROL_MASK
+                )
+        ):
             if popups:
                 return False
 

@@ -44,7 +44,7 @@ def get_prev(selection, model):
 
 class CategoryStore(gtk.ListStore):
     def __init__(self):
-        #id, name, color_code, order
+        # id, name, color_code, order
         gtk.ListStore.__init__(self, int, str)
 
     def load(self):
@@ -59,7 +59,7 @@ class CategoryStore(gtk.ListStore):
 
 class ActivityStore(gtk.ListStore):
     def __init__(self):
-        #id, name, category_id, order
+        # id, name, category_id, order
         gtk.ListStore.__init__(self, int, str, int)
 
     def load(self, category_id):
@@ -155,10 +155,14 @@ class PreferencesEditor(Controller):
         self.category_tree.set_model(self.category_store)
 
         selection = self.category_tree.get_selection()
-        self.external_listeners.extend([
-            (selection, selection.connect('changed',
-                                          self.category_changed_cb, self.category_store))
-        ])
+        self.external_listeners.extend([(
+            selection,
+            selection.connect(
+                'changed',
+                self.category_changed_cb,
+                self.category_store
+                )
+            )])
 
         self.day_start = widgets.TimeInput(dt.time(5, 30))
         self.get_widget("day_start_placeholder").add(self.day_start)
@@ -166,10 +170,12 @@ class PreferencesEditor(Controller):
         self.load_config()
 
         # Allow enable drag and drop of rows including row move
-        self.activity_tree.enable_model_drag_source(gdk.ModifierType.BUTTON1_MASK,
-                                                    self.TARGETS,
-                                                    gdk.DragAction.DEFAULT |
-                                                    gdk.DragAction.MOVE)
+        self.activity_tree.enable_model_drag_source(
+            gdk.ModifierType.BUTTON1_MASK,
+            self.TARGETS,
+            gdk.DragAction.DEFAULT |
+            gdk.DragAction.MOVE
+            )
 
         self.category_tree.enable_model_drag_dest(self.TARGETS,
                                                   gdk.DragAction.MOVE)
@@ -214,8 +220,11 @@ class PreferencesEditor(Controller):
 
         self.day_start.time = conf.day_start
 
-        self.tags = [tag["name"]
-                     for tag in runtime.storage.get_tags(only_autocomplete=True)]
+        self.tags = [
+            tag["name"] for tag in runtime.storage.get_tags(
+                only_autocomplete=True
+                )
+            ]
         self.get_widget("autocomplete_tags").set_text(", ".join(self.tags))
 
         current_source = conf.get("activities_source")
@@ -434,7 +443,8 @@ class PreferencesEditor(Controller):
                 int(event.x), int(event.y))
 
             if self.prev_selected_category == path and \
-               self._get_selected_category() != -1:  # do not allow to edit unsorted
+               self._get_selected_category() != -1:
+                # do not allow to edit unsorted
                 self.categoryCell.set_property("editable", True)
                 tree.set_cursor_on_cell(
                     path, self.categoryColumn, self.categoryCell, True)
@@ -536,17 +546,20 @@ class PreferencesEditor(Controller):
     def on_category_add_clicked(self, button):
         """ appends row, jumps to it and allows user to input name """
 
-        new_category = self.category_store.insert_before(self.category_store.unsorted_category,
-                                                         [-2, _("New category")])
+        new_category = self.category_store.insert_before(
+            self.category_store.unsorted_category,
+            [-2, _("New category")]
+            )
 
         model = self.category_tree.get_model()
 
         self.categoryCell.set_property("editable", True)
-        self.category_tree.set_cursor_on_cell(model.get_path(new_category),
-                                              focus_column=self.category_tree.get_column(
-                                                  0),
-                                              focus_cell=None,
-                                              start_editing=True)
+        self.category_tree.set_cursor_on_cell(
+            model.get_path(new_category),
+            focus_column=self.category_tree.get_column(0),
+            focus_cell=None,
+            start_editing=True
+            )
 
     def on_activity_add_clicked(self, button):
         """ appends row, jumps to it and allows user to input name """
@@ -558,11 +571,12 @@ class PreferencesEditor(Controller):
         (model, iter) = self.selection.get_selected()
 
         self.activityCell.set_property("editable", True)
-        self.activity_tree.set_cursor_on_cell(model.get_path(new_activity),
-                                              focus_column=self.activity_tree.get_column(
-                                                  0),
-                                              focus_cell=None,
-                                              start_editing=True)
+        self.activity_tree.set_cursor_on_cell(
+            model.get_path(new_activity),
+            focus_column=self.activity_tree.get_column(0),
+            focus_cell=None,
+            start_editing=True
+            )
 
     def on_activity_remove_clicked(self, button):
         removable_id = self._del_selected_row(self.activity_tree)
