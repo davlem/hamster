@@ -106,9 +106,20 @@ class Fact(object):
             'description': self.description,
             'tags': [tag.strip() for tag in self.tags],
             'date': calendar.timegm(date.timetuple()) if date else "",
-            'start_time': self.start_time if isinstance(self.start_time, str) else calendar.timegm(self.start_time.timetuple()),
-            'end_time': self.end_time if isinstance(self.end_time, str) else calendar.timegm(self.end_time.timetuple()) if self.end_time else "",
-            'delta': self.delta.total_seconds()  # ugly, but needed for report.py
+            'start_time': (
+                self.start_time if isinstance(self.start_time, str) else (
+                    calendar.timegm(self.start_time.timetuple())
+                    )
+                ),
+            'end_time': (
+                self.end_time if isinstance(self.end_time, str) else (
+                    calendar.timegm(
+                        self.end_time.timetuple()
+                        ) if self.end_time else ""
+                    )
+                ),
+            # ugly, but needed for report.py
+            'delta': self.delta.total_seconds()
         }
 
     @property
@@ -257,7 +268,8 @@ def parse_fact(text, phase=None, res=None, date=None):
         still looks rather awfully spaghetterian. What is the real solution?
 
         Tentative syntax:
-        [date] start_time[-end_time] activity[@category][, description]{[,] { })#tag}
+        [date] start_time[-end_time] activity[@category][, description]{
+            [,] { })#tag}
         According to the legacy tests, # were allowed in the description
     """
     now = hamster_now()
@@ -374,7 +386,8 @@ _time_fragment_re = [
     re.compile(
         "^([0-1]?[0-9]|[2][0-3]):([0-5][0-9])-?([0-1]?[0-9]?|[2]?[0-3]?)$"),
     re.compile(
-        "^([0-1]?[0-9]|[2][0-3]):([0-5][0-9])-([0-1]?[0-9]|[2][0-3]):?([0-5]?[0-9]?)$"),
+        "^([0-1]?[0-9]|[2][0-3]):([0-5][0-9])-([0-1]?[0-9]|[2][0-3]):?([0-5]?"
+        "[0-9]?)$"),
 ]
 
 
@@ -393,7 +406,8 @@ def default_logger(name):
     in order to considered as children of the toplevel logger.
 
     Beware that without a setLevel() somewhere,
-    the default value (warning) will be used, so no debug message will be shown.
+    the default value (warning) will be used, so no debug message
+    will be shown.
 
     Args:
         name (str): usually `__name__` in the package toplevel __init__.py, or

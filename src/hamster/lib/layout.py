@@ -19,10 +19,12 @@ class Widget(graphics.Sprite):
     """Base class for all widgets. You can use the width and height attributes
     to request a specific width."""
 
-    _sizing_attributes = set(("visible", "min_width", "min_height",
-                              "expand", "fill", "spacing",
-                              "horizontal_spacing", "vertical_spacing", "x_align",
-                              "y_align"))
+    _sizing_attributes = set((
+        "visible", "min_width", "min_height",
+        "expand", "fill", "spacing",
+        "horizontal_spacing", "vertical_spacing", "x_align",
+        "y_align"
+        ))
 
     min_width = None  #: minimum width of the widget
     min_height = None  # : minimum height of the widget
@@ -32,7 +34,8 @@ class Widget(graphics.Sprite):
 
     #: Whether extra space given to the child should be allocated to the
     #: child or used as padding. Edit :attr:`x_align` and
-    #: :attr:`y_align` properties to adjust alignment when fill is set to False.
+    #: :attr:`y_align` properties to adjust alignment when fill is set
+    #: to False.
     fill = True
 
     #: horizontal alignment within the parent. Works when :attr:`fill` is False
@@ -63,7 +66,8 @@ class Widget(graphics.Sprite):
 
     enabled = True  # : whether the widget is enabled
 
-    mouse_cursor = False  # : Mouse cursor. see :attr:`graphics.Sprite.mouse_cursor` for values
+    # : Mouse cursor. see :attr:`graphics.Sprite.mouse_cursor` for values
+    mouse_cursor = False
 
     def __init__(self, width=None, height=None, expand=None, fill=None,
                  x_align=None, y_align=None,
@@ -82,7 +86,9 @@ class Widget(graphics.Sprite):
         set_if_not_none("min_width", width)
         set_if_not_none("min_height", height)
 
-        self._enabled = enabled if enabled is not None else self.__class__.enabled
+        self._enabled = enabled if enabled is not None else (
+            self.__class__.enabled
+            )
 
         set_if_not_none("fill", fill)
         set_if_not_none("expand", expand)
@@ -93,17 +99,48 @@ class Widget(graphics.Sprite):
         # (class, subclass, instance, and constructor)
         if padding is not None or self.padding is not None:
             self.padding = padding if padding is not None else self.padding
-        self.padding_top = padding_top or self.__class__.padding_top or self.padding_top or 0
-        self.padding_right = padding_right or self.__class__.padding_right or self.padding_right or 0
-        self.padding_bottom = padding_bottom or self.__class__.padding_bottom or self.padding_bottom or 0
-        self.padding_left = padding_left or self.__class__.padding_left or self.padding_left or 0
+        self.padding_top = (
+            padding_top or self.__class__.padding_top or self.padding_top or 0
+            )
+        self.padding_right = (
+            padding_right or
+            self.__class__.padding_right or
+            self.padding_right or
+            0
+            )
+        self.padding_bottom = (
+            padding_bottom or
+            self.__class__.padding_bottom or
+            self.padding_bottom or
+            0
+            )
+        self.padding_left = (
+            padding_left or
+            self.__class__.padding_left or
+            self.padding_left or
+            0
+            )
 
         if margin is not None or self.margin is not None:
             self.margin = margin if margin is not None else self.margin
-        self.margin_top = margin_top or self.__class__.margin_top or self.margin_top or 0
-        self.margin_right = margin_right or self.__class__.margin_right or self.margin_right or 0
-        self.margin_bottom = margin_bottom or self.__class__.margin_bottom or self.margin_bottom or 0
-        self.margin_left = margin_left or self.__class__.margin_left or self.margin_left or 0
+        self.margin_top = (
+            margin_top or self.__class__.margin_top or self.margin_top or 0
+            )
+        self.margin_right = (
+            margin_right or
+            self.__class__.margin_right or
+            self.margin_right or
+            0
+            )
+        self.margin_bottom = (
+            margin_bottom or
+            self.__class__.margin_bottom or
+            self.margin_bottom or
+            0
+            )
+        self.margin_left = (
+            margin_left or self.__class__.margin_left or self.margin_left or 0
+            )
 
         #: width in pixels that have been allocated to the widget by parent
         self.alloc_w = width if width is not None else self.min_width
@@ -135,8 +172,8 @@ class Widget(graphics.Sprite):
                 val = (val, )
 
             if len(val) == 1:
-                self.padding_top = self.padding_right = self.padding_bottom = self.padding_left = val[
-                    0]
+                self.padding_top = self.padding_right = val[0]
+                self.padding_bottom = self.padding_left = val[0]
             elif len(val) == 2:
                 self.padding_top = self.padding_bottom = val[0]
                 self.padding_right = self.padding_left = val[1]
@@ -146,7 +183,12 @@ class Widget(graphics.Sprite):
                 self.padding_right = self.padding_left = val[1]
                 self.padding_bottom = val[2]
             elif len(val) == 4:
-                self.padding_top, self.padding_right, self.padding_bottom, self.padding_left = val
+                (
+                    self.padding_top,
+                    self.padding_right,
+                    self.padding_bottom,
+                    self.padding_left
+                    ) = val
             return
 
         elif name == "margin":
@@ -155,8 +197,8 @@ class Widget(graphics.Sprite):
                 val = (val, )
 
             if len(val) == 1:
-                self.margin_top = self.margin_right = self.margin_bottom = self.margin_left = val[
-                    0]
+                self.margin_top = self.margin_right = val[0]
+                self.margin_bottom = self.margin_left = val[0]
             elif len(val) == 2:
                 self.margin_top = self.margin_bottom = val[0]
                 self.margin_right = self.margin_left = val[1]
@@ -165,7 +207,12 @@ class Widget(graphics.Sprite):
                 self.margin_right = self.margin_left = val[1]
                 self.margin_bottom = val[2]
             elif len(val) == 4:
-                self.margin_top, self.margin_right, self.margin_bottom, self.margin_left = val
+                (
+                    self.margin_top,
+                    self.margin_right,
+                    self.margin_bottom,
+                    self.margin_left
+                    ) = val
             return
 
         if self.__dict__.get(name, "hamster_graphics_no_value_really") == val:
@@ -211,7 +258,9 @@ class Widget(graphics.Sprite):
         return self.padding_top + self.padding_bottom
 
     def __on_mouse_over(self, sprite):
-        cursor, mouse_x, mouse_y, mods = sprite.get_scene().get_window().get_pointer()
+        cursor, mouse_x, mouse_y, mods = (
+            sprite.get_scene().get_window().get_pointer()
+            )
         if self.tooltip and not gdk.ModifierType.BUTTON1_MASK & mods:
             self._set_tooltip(self.tooltip)
 
@@ -248,11 +297,19 @@ class Widget(graphics.Sprite):
 
     def get_min_size(self):
         """returns size required by the widget"""
-        if self.visible == False:
+        if self.visible is False:
             return 0, 0
         else:
-            return ((self.min_width or 0) + self.horizontal_padding + self.margin_left + self.margin_right,
-                    (self.min_height or 0) + self.vertical_padding + self.margin_top + self.margin_bottom)
+            return (
+                    (
+                        (self.min_width or 0) + self.horizontal_padding +
+                        self.margin_left + self.margin_right
+                    ),
+                    (
+                        (self.min_height or 0) + self.vertical_padding +
+                        self.margin_top + self.margin_bottom
+                    )
+                )
 
     def insert(self, index=0, *widgets):
         """insert widget in the sprites list at the given index.
@@ -269,7 +326,8 @@ class Widget(graphics.Sprite):
         target.parent.insert(target.parent.sprites.index(target), self)
 
     def insert_after(self, target):
-        """insert this widget into the targets parent container after the target"""
+        """insert this widget into the targets parent container after the target
+        """
         if not target.parent:
             return
         target.parent.insert(target.parent.sprites.index(target) + 1, self)
@@ -323,7 +381,7 @@ class Widget(graphics.Sprite):
             return False
 
         if self.parent and isinstance(self.parent, Widget):
-            if self.parent.enabled == False:
+            if self.parent.enabled is False:
                 return False
 
         return True
@@ -384,10 +442,10 @@ def get_props(sprite):
 
 class Container(Widget):
     """The base container class that all other containers inherit from.
-       You can insert any sprite in the container, just make sure that it either
-       has width and height defined so that the container can do alignment, or
-       for more sophisticated cases, make sure it has get_min_size function that
-       returns how much space is needed.
+       You can insert any sprite in the container, just make sure that
+       it either has width and height defined so that the container can do
+       alignment, or for more sophisticated cases, make sure it has
+       get_min_size function that returns how much space is needed.
 
        Normally while performing layout the container will update child sprites
        and set their alloc_h and alloc_w properties. The `alloc` part is short
@@ -445,17 +503,21 @@ class Container(Widget):
 
     def get_min_size(self):
         # by default max between our requested size and the biggest child
-        if self.visible == False:
+        if self.visible is False:
             return 0, 0
 
         if self._cached_w is None:
             sprites = [sprite for sprite in self.sprites if sprite.visible]
             width = max([get_min_size(sprite)[0] for sprite in sprites] or [0])
-            width += self.horizontal_padding + self.margin_left + self.margin_right
+            width += (
+                self.horizontal_padding + self.margin_left + self.margin_right
+                )
 
             height = max([get_min_size(sprite)[1]
                           for sprite in sprites] or [0])
-            height += self.vertical_padding + self.margin_top + self.margin_bottom
+            height += (
+                self.vertical_padding + self.margin_top + self.margin_bottom
+                )
 
             self._cached_w, self._cached_h = max(
                 width, self.min_width or 0), max(
@@ -488,9 +550,13 @@ class Container(Widget):
                 props["margin_top"] + props["margin_bottom"]
 
             sprite.x = self.padding_left + props["margin_left"] + (
-                max(sprite.alloc_w * sprite.scale_x, w) - w) * getattr(sprite, "x_align", 0)
+                max(sprite.alloc_w * sprite.scale_x, w) - w) * getattr(
+                    sprite, "x_align", 0
+                    )
             sprite.y = self.padding_top + props["margin_top"] + (
-                max(sprite.alloc_h * sprite.scale_y, h) - h) * getattr(sprite, "y_align", 0)
+                max(sprite.alloc_h * sprite.scale_y, h) - h) * getattr(
+                    sprite, "y_align", 0
+                    )
 
         self.__dict__['_children_resize_queued'] = False
 
@@ -526,8 +592,10 @@ class Bin(Container):
             width = max(width, w)
             height = max(height, h)
 
-        #width = width + self.horizontal_padding + self.margin_left + self.margin_right
-        #height = height + self.vertical_padding + self.margin_top + self.margin_bottom
+        # width = width + self.horizontal_padding + self.margin_left +
+        #  self.margin_right
+        # height = height + self.vertical_padding + self.margin_top +
+        #  self.margin_bottom
 
         return width, height
 
@@ -566,7 +634,8 @@ class Box(Container):
     #: spacing in pixels between children
     spacing = 5
 
-    #: whether the box is packing children horizontally (from left to right) or vertically (from top to bottom)
+    #: whether the box is packing children horizontally (from left to right)
+    #: or vertically (from top to bottom)
     orient_horizontal = True
 
     def __init__(self, contents=None, horizontal=None, spacing=None, **kwargs):
@@ -587,12 +656,19 @@ class Box(Container):
                     padding_sprites += 1
                 else:
                     if hasattr(sprite, "get_min_size"):
-                        size = sprite.get_min_size(
-                        )[0] if self.orient_horizontal else sprite.get_min_size()[1]
+                        size = (
+                            sprite.get_min_size()[0] if (
+                                self.orient_horizontal
+                                ) else sprite.get_min_size()[1]
+                            )
                     else:
                         size = getattr(
-                            sprite, "width", 0) * sprite.scale_x if self.orient_horizontal else getattr(
-                            sprite, "height", 0) * sprite.scale_y
+                            sprite, "width", 0
+                            ) * sprite.scale_x if self.orient_horizontal else (
+                                getattr(
+                                    sprite, "height", 0
+                                    ) * sprite.scale_y
+                                )
 
                     if size > 0:
                         padding_sprites += 1
@@ -673,9 +749,11 @@ class Box(Container):
                 props["margin_top"] + props["margin_bottom"]
 
             sprite.x = self.padding_left + x_pos + props["margin_left"] + (
-                max(sprite.alloc_w * sprite.scale_x, w) - w) * getattr(sprite, "x_align", 0.5)
+                max(sprite.alloc_w * sprite.scale_x, w) - w
+                ) * getattr(sprite, "x_align", 0.5)
             sprite.y = self.padding_top + y_pos + props["margin_top"] + (
-                max(sprite.alloc_h * sprite.scale_y, h) - h) * getattr(sprite, "y_align", 0.5)
+                max(sprite.alloc_h * sprite.scale_y, h) - h
+                ) * getattr(sprite, "y_align", 0.5)
 
             actual_h = max(actual_h, h * sprite.scale_y)
 
@@ -721,13 +799,19 @@ class Box(Container):
         else:
             height = height + self.get_total_spacing()
 
-        width = width + self.horizontal_padding + self.margin_left + self.margin_right
-        height = height + self.vertical_padding + self.margin_top + self.margin_bottom
+        width = (
+            width + self.horizontal_padding + self.margin_left +
+            self.margin_right
+            )
+        height = (
+            height + self.vertical_padding + self.margin_top +
+            self.margin_bottom
+            )
 
         return width, height
 
     def get_min_size(self):
-        if self.visible == False:
+        if self.visible is False:
             return 0, 0
 
         if self._cached_w is None:
@@ -756,8 +840,14 @@ class Box(Container):
             else:
                 height = height + self.get_total_spacing()
 
-            width = width + self.horizontal_padding + self.margin_left + self.margin_right
-            height = height + self.vertical_padding + self.margin_top + self.margin_bottom
+            width = (
+                width + self.horizontal_padding + self.margin_left +
+                self.margin_right
+                )
+            height = (
+                height + self.vertical_padding + self.margin_top +
+                self.margin_bottom
+                )
 
             w, h = max(
                 width, self.min_width or 0), max(
@@ -873,8 +963,10 @@ class Label(Bin):
 
         self.background_color = background_color
 
-        #: either the pango `wrap <http://www.pygtk.org/pygtk2reference/pango-constants.html#pango-wrap-mode-constants>`_
-        #: or `ellipsize <http://www.pygtk.org/pygtk2reference/pango-constants.html#pango-ellipsize-mode-constants>`_ constant.
+        #: either the pango `wrap <http://www.pygtk.org/pygtk2reference/
+        #: pango-constants.html#pango-wrap-mode-constants>`_
+        #: or `ellipsize <http://www.pygtk.org/pygtk2reference/
+        #: pango-constants.html#pango-ellipsize-mode-constants>`_ constant.
         #: if set to False will refuse to become smaller
         self.overflow = overflow
 
@@ -888,7 +980,8 @@ class Label(Bin):
 
     @property
     def text(self):
-        """label text. This attribute and :attr:`markup` are mutually exclusive."""
+        """label text. This attribute and :attr:`markup` are mutually exclusive.
+        """
         return self.display_label.text
 
     @property
@@ -919,7 +1012,11 @@ class Label(Bin):
         if name in ('x_align', 'y_align') and hasattr(self, "container"):
             setattr(self.container, name, val)
 
-        elif name == "alloc_w" and hasattr(self, "display_label") and getattr(self, "overflow") is not False:
+        elif (
+            name == "alloc_w" and
+            hasattr(self, "display_label") and
+            getattr(self, "overflow") is not False
+        ):
             self._update_max_width()
 
         elif name == "min_width" and hasattr(self, "display_label"):
@@ -929,10 +1026,22 @@ class Label(Bin):
             if val is False:
                 self.display_label.wrap = None
                 self.display_label.ellipsize = None
-            elif isinstance(val, pango.WrapMode) and val in (pango.WrapMode.WORD, pango.WrapMode.WORD_CHAR, pango.WrapMode.CHAR):
+            elif (
+                isinstance(val, pango.WrapMode) and
+                val in (
+                    pango.WrapMode.WORD, pango.WrapMode.WORD_CHAR,
+                    pango.WrapMode.CHAR
+                    )
+            ):
                 self.display_label.wrap = val
                 self.display_label.ellipsize = None
-            elif isinstance(val, pango.EllipsizeMode) and val in (pango.EllipsizeMode.START, pango.EllipsizeMode.MIDDLE, pango.EllipsizeMode.END):
+            elif (
+                isinstance(val, pango.EllipsizeMode) and
+                val in (
+                    pango.EllipsizeMode.START, pango.EllipsizeMode.MIDDLE,
+                    pango.EllipsizeMode.END
+                    )
+            ):
                 self.display_label.wrap = None
                 self.display_label.ellipsize = val
 

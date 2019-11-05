@@ -34,7 +34,8 @@ class Tweener(object):
             This will move the sprite to coordinates (500, 200) in 0.4 seconds.
             For parameter "easing" you can use one of the pytweener.Easing
             functions, or specify your own.
-            The tweener can handle numbers, dates and color strings in hex ("#ffffff").
+            The tweener can handle numbers, dates and color strings in
+            hex ("#ffffff").
             This function performs overwrite style conflict solving - in case
             if a previous tween operates on same attributes, the attributes in
             question are removed from that tween.
@@ -88,8 +89,13 @@ class Tweener(object):
             self.current_tweens = collections.defaultdict(set)
 
     def remove_tween(self, tween):
-        """"remove given tween without completing the motion or firing the on_complete"""
-        if tween.target in self.current_tweens and tween in self.current_tweens[tween.target]:
+        """"remove given tween without completing the motion or firing the
+        on_complete
+        """
+        if (
+            tween.target in self.current_tweens and
+            tween in self.current_tweens[tween.target]
+        ):
             self.current_tweens[tween.target].remove(tween)
             if not self.current_tweens[tween.target]:
                 del self.current_tweens[tween.target]
@@ -102,7 +108,8 @@ class Tweener(object):
         self.current_tweens = {}
 
     def update(self, delta_seconds):
-        """update tweeners. delta_seconds is time in seconds since last frame"""
+        """update tweeners. delta_seconds is time in seconds since last frame
+        """
 
         for obj in tuple(self.current_tweens):
             for tween in tuple(self.current_tweens[obj]):
@@ -123,11 +130,14 @@ class Tween(object):
                  'ease', 'delta', 'complete', 'round',
                  'on_complete', 'on_update')
 
-    def __init__(self, obj, duration, delay, easing, on_complete, on_update, round,
-                 **kwargs):
+    def __init__(
+            self, obj, duration, delay, easing, on_complete, on_update, round,
+            **kwargs
+    ):
         """Tween object use Tweener.add_tween( ... ) to create"""
 
-        #: should the tween values truncated to integers or not. Default is False.
+        #: should the tween values truncated to integers or not.
+        #: Default is False.
         self.round = round
 
         #: duration of the tween
@@ -243,23 +253,37 @@ class Tweenable(object):
                 self.start_value = self.decode_func(start_value)
                 self.change = self.decode_func(target_value) - self.start_value
 
-            elif isinstance(start_value, str) \
-                    and (self.hex_color_normal.match(start_value) or self.hex_color_short.match(start_value)):
+            elif (
+                isinstance(start_value, str) and (
+                    self.hex_color_normal.match(start_value) or
+                    self.hex_color_short.match(start_value)
+                    )
+            ):
                 self.update = color_update
                 if self.hex_color_normal.match(start_value):
-                    self.decode_func = lambda val: [int(match, 16)
-                                                    for match in self.hex_color_normal.match(val).groups()]
+                    self.decode_func = lambda val: [
+                        int(match, 16)
+                        for match in self.hex_color_normal.match(val).groups()
+                        ]
 
                 elif self.hex_color_short.match(start_value):
-                    self.decode_func = lambda val: [int(match + match, 16)
-                                                    for match in self.hex_color_short.match(val).groups()]
+                    self.decode_func = lambda val: [
+                        int(match + match, 16)
+                        for match in self.hex_color_short.match(val).groups()
+                        ]
 
                 if self.hex_color_normal.match(target_value):
-                    target_value = [int(match, 16)
-                                    for match in self.hex_color_normal.match(target_value).groups()]
+                    target_value = [
+                        int(match, 16)
+                        for match in self.hex_color_normal.match(
+                            target_value).groups()
+                        ]
                 else:
-                    target_value = [int(match + match, 16)
-                                    for match in self.hex_color_short.match(target_value).groups()]
+                    target_value = [
+                        int(match + match, 16)
+                        for match in self.hex_color_short.match(
+                            target_value).groups()
+                        ]
 
                 self.start_value = self.decode_func(start_value)
                 self.change = [
@@ -308,7 +332,8 @@ class Easing(object):
     Cubic = Symmetric(lambda t: t * t * t)
     Quart = Symmetric(lambda t: t * t * t * t)
     Quint = Symmetric(lambda t: t * t * t * t * t)
-    Strong = Quint  # oh i wonder why but the ported code is the same as in Quint
+    # oh i wonder why but the ported code is the same as in Quint
+    Strong = Quint
 
     Circ = Symmetric(lambda t: 1 - math.sqrt(1 - t * t))
     Sine = Symmetric(lambda t: 1 - math.cos(t * (math.pi / 2)))

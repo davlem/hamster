@@ -32,7 +32,8 @@ import dbus
 
 class DesktopIntegrations(object):
     def __init__(self, storage):
-        self.storage = storage  # can't use client as then we get in a dbus loop
+        # can't use client as then we get in a dbus loop
+        self.storage = storage
         self._last_notification = None
 
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
@@ -49,7 +50,8 @@ class DesktopIntegrations(object):
         gobject.timeout_add_seconds(60, self.check_hamster)
 
     def check_hamster(self):
-        """refresh hamster every x secs - load today, check last activity etc."""
+        """refresh hamster every x secs - load today, check last activity etc.
+        """
         try:
             # can't use the client because then we end up in a dbus loop
             # as this is initiated in storage
@@ -57,7 +59,9 @@ class DesktopIntegrations(object):
             self.check_user(todays_facts)
         except Exception as e:
             logger.error("Error while refreshing: %s" % e)
-        finally:  # we want to go on no matter what, so in case of any error we find out about it sooner
+        finally:
+            # we want to go on no matter what, so in case of any error
+            # we find out about it sooner
             return True
 
     def check_user(self, todays_facts):
@@ -88,10 +92,14 @@ class DesktopIntegrations(object):
 
     def notify_user(self, summary="", details=""):
         if not hasattr(self, "_notification_conn"):
-            self._notification_conn = dbus.Interface(self.bus.get_object('org.freedesktop.Notifications',
-                                                                         '/org/freedesktop/Notifications',
-                                                                         follow_name_owner_changes=True),
-                                                     dbus_interface='org.freedesktop.Notifications')
+            self._notification_conn = dbus.Interface(
+                self.bus.get_object(
+                    'org.freedesktop.Notifications',
+                    '/org/freedesktop/Notifications',
+                    follow_name_owner_changes=True
+                    ),
+                dbus_interface='org.freedesktop.Notifications'
+                )
         conn = self._notification_conn
 
         notification = conn.Notify("Project Hamster",

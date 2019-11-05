@@ -150,14 +150,17 @@ def format_range(start_date, end_date):
         # standard python date formatting ones- you can use all of them
         # see http://docs.python.org/library/time.html#time.strftime
         title = (
-            "%(start_B)s %(start_d)s, %(start_Y)s – %(end_B)s %(end_d)s, %(end_Y)s") % dates_dict
+            "%(start_B)s %(start_d)s, %(start_Y)s – %(end_B)s %(end_d)s, "
+            "%(end_Y)s"
+            ) % dates_dict
     elif start_date.month != end_date.month:
         # label of date range if start and end month do not match
         # letter after prefixes (start_, end_) is the one of
         # standard python date formatting ones- you can use all of them
         # see http://docs.python.org/library/time.html#time.strftime
         title = (
-            "%(start_B)s %(start_d)s – %(end_B)s %(end_d)s, %(end_Y)s") % dates_dict
+            "%(start_B)s %(start_d)s – %(end_B)s %(end_d)s, %(end_Y)s"
+            ) % dates_dict
     else:
         # label of date range for interval in same month
         # letter after prefixes (start_, end_) is the one of

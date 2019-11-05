@@ -70,7 +70,11 @@ class Bar(graphics.Sprite):
 
 class Chart(graphics.Scene):
     __gsignals__ = {
-        "bar-clicked": (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT, )),
+        "bar-clicked": (
+            gobject.SIGNAL_RUN_LAST,
+            gobject.TYPE_NONE,
+            (gobject.TYPE_PYOBJECT,)
+            ),
     }
 
     def __init__(self, max_bar_width=20, legend_width=70,
@@ -283,8 +287,10 @@ class HorizontalDayChart(graphics.Scene):
             positions[key] = (y + self.graph_y, round(bar_width - 1))
 
             y = y + round(bar_width)
-            bar_width = min(self.max_bar_width,
-                            (self.graph_height - y) / float(max(1, len(self.keys) - i - 1)))
+            bar_width = min(
+                self.max_bar_width,
+                (self.graph_height - y) / float(max(1, len(self.keys) - i - 1))
+                )
 
         max_bar_size = self.graph_width - 15
 
@@ -316,7 +322,7 @@ class HorizontalDayChart(graphics.Scene):
                             (positions[label][1] - label_h) / 2)
             context.show_layout(self.layout)
 
-            if isinstance(self.data[i], list) == False:
+            if not isinstance(self.data[i], list):
                 self.data[i] = [self.data[i]]
 
             for row in self.data[i]:

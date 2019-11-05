@@ -19,7 +19,8 @@
 
 from gi.repository import GConf as gconf
 """
-gconf part of this code copied from Gimmie (c) Alex Gravely via Conduit (c) John Stowers, 2006
+gconf part of this code copied from Gimmie (c) Alex Gravely via Conduit (c)
+John Stowers, 2006
 License: GPLv2
 """
 
@@ -203,15 +204,15 @@ class GConfStore(gobject.GObject, Singleton):
     VALID_KEY_TYPES = (bool, str, int, list, tuple)
     DEFAULTS = {
         'enable_timeout': False,       # Should hamster stop tracking on idle
-        'stop_on_shutdown': False,       # Should hamster stop tracking on shutdown
+        'stop_on_shutdown': False,   # Should hamster stop tracking on shutdown
         'notify_on_idle': False,       # Remind also if no activity is set
-        'notify_interval': 27,          # Remind of current activity every X minutes
+        'notify_interval': 27,     # Remind of current activity every X minutes
         # At what time does the day start (5:30AM)
         'day_start_minutes': 5 * 60 + 30,
         'overview_window_box': [],          # X, Y, W, H
-        'overview_window_maximized': False,       # Is overview window maximized
+        'overview_window_maximized': False,      # Is overview window maximized
         'standalone_window_box': [],          # X, Y, W, H
-        'standalone_window_maximized': False,       # Is overview window maximized
+        'standalone_window_maximized': False,    # Is overview window maximized
         # Source of TODO items ("", "evo", "gtg")
         'activities_source': "",
         # Path to directory where the last report was saved
@@ -219,7 +220,11 @@ class GConfStore(gobject.GObject, Singleton):
     }
 
     __gsignals__ = {
-        "conf-changed": (gobject.SignalFlags.RUN_LAST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT, gobject.TYPE_PYOBJECT))
+        "conf-changed": (
+            gobject.SignalFlags.RUN_LAST,
+            gobject.TYPE_NONE,
+            (gobject.TYPE_PYOBJECT, gobject.TYPE_PYOBJECT)
+            )
     }
 
     def __init__(self):
@@ -263,10 +268,10 @@ class GConfStore(gobject.GObject, Singleton):
         elif vtype is int:
             return value.get_int()
         elif vtype in (list, tuple):
-            l = []
+            _l0 = []
             for i in value.get_list():
-                l.append(i.get_string())
-            return l
+                _l0.append(i.get_string())
+            return _l0
 
         return None
 
@@ -336,7 +341,7 @@ class GConfStore(gobject.GObject, Singleton):
         elif vtype in (list, tuple):
             # Save every value as a string
             strvalues = [str(i) for i in value]
-            #self._client.set_list(key, gconf.VALUE_STRING, strvalues)
+            # self._client.set_list(key, gconf.VALUE_STRING, strvalues)
 
         return True
 
