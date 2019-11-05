@@ -33,7 +33,10 @@ from shutil import copy as copyfile
 try:
     from gi.repository import Gio as gio
 except ImportError:
-    print("Could not import gio - requires pygobject. File monitoring will be disabled")
+    print(
+        "Could not import gio - requires pygobject. File monitoring will be "
+        "disabled"
+        )
     gio = None
 
 from hamster.lib import Fact
@@ -69,9 +72,13 @@ class Storage(storage.Storage):
             def on_db_file_change(monitor, gio_file, event_uri, event):
                 logger.debug(event)
                 if event == gio.FileMonitorEvent.CHANGES_DONE_HINT:
-                    if gio_file.query_info(gio.FILE_ATTRIBUTE_ETAG_VALUE,
-                                           gio.FileQueryInfoFlags.NONE,
-                                           None).get_etag() == self.__last_etag:
+                    if (
+                        gio_file.query_info(
+                            gio.FILE_ATTRIBUTE_ETAG_VALUE,
+                            gio.FileQueryInfoFlags.NONE,
+                            None
+                            ).get_etag() == self.__last_etag
+                    ):
                         # ours
                         logger.info("database updated")
                         return
@@ -80,7 +87,9 @@ class Storage(storage.Storage):
 
                 if event == gio.FileMonitorEvent.CHANGES_DONE_HINT:
                     logger.warning(
-                        "DB file has been modified externally. Calling all stations")
+                        "DB file has been modified externally. Calling all "
+                        "stations"
+                        )
                     self.dispatch_overwrite()
 
             self.__database_file = gio.File.new_for_path(self.db_path)
@@ -135,8 +144,12 @@ class Storage(storage.Storage):
                         # up)
                         data_dir = os.path.join(
                             module_dir, '..', '..', '..', 'data')
-                logger.warning("Database not found in {} - installing default from {}!"
-                               .format(db_path, data_dir))
+                logger.warning(
+                    (
+                        "Database not found in {} - installing default "
+                        "from {}!"
+                        ).format(db_path, data_dir)
+                    )
                 copyfile(os.path.join(data_dir, 'hamster.db'), db_path)
 
             # change also permissions - sometimes they are 444
@@ -150,23 +163,31 @@ class Storage(storage.Storage):
         if gio:
             # db.execute calls this so we know that we were the ones
             # that modified the DB and no extra refesh is not needed
-            self.__last_etag = self.__database_file.query_info(gio.FILE_ATTRIBUTE_ETAG_VALUE,
-                                                               gio.FileQueryInfoFlags.NONE,
-                                                               None).get_etag()
+            self.__last_etag = self.__database_file.query_info(
+                gio.FILE_ATTRIBUTE_ETAG_VALUE,
+                gio.FileQueryInfoFlags.NONE,
+                None
+                ).get_etag()
 
     # tags, here we come!
     def __get_tags(self, only_autocomplete=False):
         if only_autocomplete:
             return self.fetchall(
-                "select * from tags where autocomplete != 'false' order by name")
+                "select * from tags where autocomplete != 'false' "
+                "order by name"
+                )
         else:
             return self.fetchall("select * from tags order by name")
 
     def __get_tag_ids(self, tags):
         """look up tags by their name. create if not found"""
 
-        db_tags = self.fetchall("select * from tags where name in (%s)"
-                                % ",".join(["?"] * len(tags)), tags)  # bit of magic here - using sqlites bind variables
+        db_tags = self.fetchall(
+            "select * from tags where name in (%s)" % ",".join(
+                ["?"] * len(tags)
+                ),
+            tags
+            )  # bit of magic here - using sqlites bind variables
 
         changes = False
 
@@ -201,12 +222,13 @@ class Storage(storage.Storage):
 
         # now we will find which ones are gone from the list
         query = """
-                    SELECT b.id as id, b.autocomplete, count(a.fact_id) as occurences
-                      FROM tags b
-                 LEFT JOIN fact_tags a on a.tag_id = b.id
-                     WHERE b.id not in (%s)
-                  GROUP BY b.id
-                """ % ",".join(["?"] * len(tags))  # bit of magic here - using sqlites bind variables
+            SELECT b.id as id, b.autocomplete, count(a.fact_id) as occurences
+              FROM tags b
+         LEFT JOIN fact_tags a on a.tag_id = b.id
+             WHERE b.id not in (%s)
+          GROUP BY b.id
+        """ % ",".join(["?"] * len(tags))
+        # bit of magic here - using sqlites bind variables
 
         gone = self.fetchall(query, tags)
 
@@ -282,7 +304,8 @@ class Storage(storage.Storage):
             "select id from facts where activity_id = ?", (id,))]
         if existing_activity:
             affected_ids.extend([res[0] for res in self.fetchall(
-                "select id from facts where activity_id = ?", (existing_activity['id'],))])
+                "select id from facts where activity_id = ?",
+                (existing_activity['id'],))])
         self.__remove_index(affected_ids)
 
         return True
@@ -296,7 +319,8 @@ class Storage(storage.Storage):
         return self.__last_insert_rowid()
 
     def __update_category(self, id, name):
-        if id > -1:  # Update, and ignore unsorted, if that was somehow triggered
+        if id > -1:
+            # Update, and ignore unsorted, if that was somehow triggered
             update = """
                        UPDATE categories
                            SET name = ?, search_name = ?
@@ -305,9 +329,8 @@ class Storage(storage.Storage):
             self.execute(update, (name, name.lower(), id))
 
         affected_query = """
-            SELECT id
-              FROM facts
-             WHERE activity_id in (SELECT id FROM activities where category_id=?)
+            SELECT id FROM facts WHERE activity_id in (
+                SELECT id FROM activities where category_id=?)
         """
         affected_ids = [res[0] for res in self.fetchall(affected_query, (id,))]
         self.__remove_index(affected_ids)
@@ -317,25 +340,25 @@ class Storage(storage.Storage):
 
         if category_id:
             query = """
-                       SELECT a.id, a.name, a.deleted, coalesce(b.name, ?) as category
-                         FROM activities a
-                    LEFT JOIN categories b ON category_id = b.id
-                        WHERE lower(a.name) = lower(?)
-                          AND category_id = ?
-                     ORDER BY a.deleted, a.id desc
-                        LIMIT 1
+               SELECT a.id, a.name, a.deleted, coalesce(b.name, ?) as category
+                 FROM activities a
+            LEFT JOIN categories b ON category_id = b.id
+                WHERE lower(a.name) = lower(?)
+                  AND category_id = ?
+             ORDER BY a.deleted, a.id desc
+                LIMIT 1
             """
 
             res = self.fetchone(
                 query, (self._unsorted_localized, name, category_id))
         else:
             query = """
-                       SELECT a.id, a.name, a.deleted, coalesce(b.name, ?) as category
-                         FROM activities a
-                    LEFT JOIN categories b ON category_id = b.id
-                        WHERE lower(a.name) = lower(?)
-                     ORDER BY a.deleted, a.id desc
-                        LIMIT 1
+               SELECT a.id, a.name, a.deleted, coalesce(b.name, ?) as category
+                 FROM activities a
+            LEFT JOIN categories b ON category_id = b.id
+                WHERE lower(a.name) = lower(?)
+             ORDER BY a.deleted, a.id desc
+                LIMIT 1
             """
             res = self.fetchone(query, (self._unsorted_localized, name, ))
 
@@ -379,20 +402,21 @@ class Storage(storage.Storage):
 
     def __get_fact(self, id):
         query = """
-                   SELECT a.id AS id,
-                          a.start_time AS start_time,
-                          a.end_time AS end_time,
-                          a.description as description,
-                          b.name AS name, b.id as activity_id,
-                          coalesce(c.name, ?) as category, coalesce(c.id, -1) as category_id,
-                          e.name as tag
-                     FROM facts a
-                LEFT JOIN activities b ON a.activity_id = b.id
-                LEFT JOIN categories c ON b.category_id = c.id
-                LEFT JOIN fact_tags d ON d.fact_id = a.id
-                LEFT JOIN tags e ON e.id = d.tag_id
-                    WHERE a.id = ?
-                 ORDER BY e.name
+               SELECT a.id AS id,
+                      a.start_time AS start_time,
+                      a.end_time AS end_time,
+                      a.description as description,
+                      b.name AS name, b.id as activity_id,
+                      coalesce(c.name, ?) as category,
+                      coalesce(c.id, -1) as category_id,
+                      e.name as tag
+                 FROM facts a
+            LEFT JOIN activities b ON a.activity_id = b.id
+            LEFT JOIN categories c ON b.category_id = c.id
+            LEFT JOIN fact_tags d ON d.fact_id = a.id
+            LEFT JOIN tags e ON e.id = d.tag_id
+                WHERE a.id = ?
+             ORDER BY e.name
         """
 
         facts = self.fetchall(query, (self._unsorted_localized, id))
@@ -402,7 +426,8 @@ class Storage(storage.Storage):
         return fact
 
     def __group_tags(self, facts):
-        """put the fact back together and move all the unique tags to an array"""
+        """put the fact back together and move all the unique tags to an array
+        """
         if not facts:
             return facts  # be it None or whatever
 
@@ -447,14 +472,16 @@ class Storage(storage.Storage):
         # in the latter case go only few hours ahead. everything else is
         # madness, heh
         query = """
-                   SELECT a.*, b.name
-                     FROM facts a
-                LEFT JOIN activities b on b.id = a.activity_id
-                    WHERE ((start_time < ? and end_time > ?)
-                           OR (start_time > ? and start_time < ? and end_time is null)
-                           OR (start_time > ? and start_time < ?))
-                 ORDER BY start_time
-                    LIMIT 1
+               SELECT a.*, b.name
+                 FROM facts a
+            LEFT JOIN activities b on b.id = a.activity_id
+                WHERE (
+                    (start_time < ? and end_time > ?) OR
+                    (start_time > ? and start_time < ? and end_time is null) OR
+                    (start_time > ? and start_time < ?)
+                    )
+             ORDER BY start_time
+                LIMIT 1
                 """
         fact = self.fetchone(query, (start_time, start_time,
                                      start_time - dt.timedelta(hours=12),
@@ -593,25 +620,34 @@ class Storage(storage.Storage):
             if previous and previous['start_time'] <= start_time:
                 # check if maybe that is the same one, in that case no need to
                 # restart
-                if previous["activity_id"] == activity_id \
-                   and set(previous["tags"]) == set([tag[1] for tag in tags]) \
-                   and (previous["description"] or "") == (fact.description or ""):
+                if (
+                    previous["activity_id"] == activity_id and
+                    set(previous["tags"]) == set([tag[1] for tag in tags]) and
+                    (previous["description"] or "") == (fact.description or "")
+                ):
                     return None
 
                 # if no description is added
                 # see if maybe previous was too short to qualify as an activity
-                if not previous["description"] \
-                   and 60 >= (start_time - previous['start_time']).seconds >= 0:
+                if (
+                    not previous["description"] and
+                    60 >= (start_time - previous['start_time']).seconds >= 0
+                ):
                     self.__remove_fact(previous['id'])
 
-                    # now that we removed the previous one, see if maybe the one
-                    # before that is actually same as the one we want to start
-                    # (glueing)
-                    if len(facts) > 1 and 60 >= (start_time -
-                                                 facts[-2]['end_time']).seconds >= 0:
+                    # now that we removed the previous one, see if maybe the
+                    # one before that is actually same as the one we want
+                    # to start (glueing)
+                    if (
+                        len(facts) > 1 and
+                        60 >= (start_time - facts[-2]['end_time']).seconds >= 0
+                    ):
                         before = facts[-2]
-                        if before["activity_id"] == activity_id \
-                           and set(before["tags"]) == set([tag[1] for tag in tags]):
+                        if (
+                            before["activity_id"] == activity_id and
+                            set(before["tags"]) == set(
+                                [tag[1] for tag in tags])
+                        ):
                             # resume and return
                             update = """
                                        UPDATE facts
@@ -638,8 +674,8 @@ class Storage(storage.Storage):
 
         # finally add the new entry
         insert = """
-                    INSERT INTO facts (activity_id, start_time, end_time, description)
-                               VALUES (?, ?, ?, ?)
+            INSERT INTO facts (activity_id, start_time, end_time, description)
+            VALUES (?, ?, ?, ?)
         """
         self.execute(
             insert,
@@ -691,7 +727,9 @@ class Storage(storage.Storage):
                 LEFT JOIN categories c ON b.category_id = c.id
                 LEFT JOIN fact_tags d ON d.fact_id = a.id
                 LEFT JOIN tags e ON e.id = d.tag_id
-                    WHERE (a.end_time >= ? OR a.end_time IS NULL) AND a.start_time <= ?
+                    WHERE (
+                        a.end_time >= ? OR a.end_time IS NULL
+                        ) AND a.start_time <= ?
         """
 
         if search_terms:
@@ -712,10 +750,11 @@ class Storage(storage.Storage):
                 '\\_').replace(
                 "'",
                 "''")
-            query += """ AND a.id %s IN (SELECT id
-                                         FROM fact_index
-                                         WHERE fact_index MATCH '%s')""" % ('NOT' if reverse_search_terms else '',
-                                                                            search_terms)
+            query += """ AND a.id %s IN (
+                SELECT id FROM fact_index WHERE fact_index MATCH '%s')""" % (
+                'NOT' if reverse_search_terms else '',
+                search_terms
+                )
 
         query += " ORDER BY a.start_time, e.name"
 
@@ -734,8 +773,10 @@ class Storage(storage.Storage):
             # or current time if fact has happened in last 12 hours
             if fact["end_time"]:
                 fact_end_time = fact["end_time"]
-            elif (hamster_today() == fact["start_time"].date()) or \
-                 (hamster_now() - fact["start_time"]) <= dt.timedelta(hours=12):
+            elif (
+                (hamster_today() == fact["start_time"].date()) or
+                (hamster_now() - fact["start_time"]) <= dt.timedelta(hours=12)
+            ):
                 fact_end_time = hamster_now()
             else:
                 fact_end_time = fact["start_time"]
@@ -839,9 +880,8 @@ class Storage(storage.Storage):
         """move all activities to unsorted and remove category"""
 
         affected_query = """
-            SELECT id
-              FROM facts
-             WHERE activity_id in (SELECT id FROM activities where category_id=?)
+            SELECT id FROM facts WHERE activity_id in (
+                SELECT id FROM activities where category_id=?)
         """
         affected_ids = [res[0] for res in self.fetchall(affected_query, (id,))]
 
@@ -866,8 +906,8 @@ class Storage(storage.Storage):
             deleted = 1
 
         query = """
-                   INSERT INTO activities (name, search_name, category_id, deleted)
-                        VALUES (?, ?, ?, ?)
+            INSERT INTO activities (name, search_name, category_id, deleted)
+                VALUES (?, ?, ?, ?)
         """
         self.execute(query, (name, name.lower(), category_id, deleted))
         return self.__last_insert_rowid()
@@ -888,8 +928,12 @@ class Storage(storage.Storage):
                             AND start_time <= ?
                             AND id not in(select id from fact_index)"""
 
-        rebuild_ids = ",".join(
-            [str(res[0]) for res in self.fetchall(index_query, (start_date, end_date))])
+        rebuild_ids = ",".join([
+            str(res[0]) for res in self.fetchall(
+                index_query,
+                (start_date, end_date)
+                )
+            ])
 
         if rebuild_ids:
             query = """
@@ -929,7 +973,9 @@ class Storage(storage.Storage):
     def get_connection(self):
         if self.con is None:
             self.con = sqlite.connect(
-                self.db_path, detect_types=sqlite.PARSE_DECLTYPES | sqlite.PARSE_COLNAMES)
+                self.db_path,
+                detect_types=sqlite.PARSE_DECLTYPES | sqlite.PARSE_COLNAMES
+                )
             self.con.row_factory = sqlite.Row
 
         return self.con
@@ -967,8 +1013,8 @@ class Storage(storage.Storage):
         con = self.__con or self.connection
         cur = self.__cur or con.cursor()
 
-        if isinstance(
-                statement, list) == False:  # we expect to receive instructions in list
+        if isinstance(statement, list) is False:
+            # we expect to receive instructions in list
             statement = [statement]
             params = [params]
 
@@ -1034,8 +1080,10 @@ class Storage(storage.Storage):
 
         if version < 9:
             # adding full text search
-            self.execute("""CREATE VIRTUAL TABLE fact_index
-                                           USING fts3(id, name, category, description, tag)""")
+            self.execute(
+                """CREATE VIRTUAL TABLE fact_index
+                   USING fts3(id, name, category, description, tag)"""
+                )
 
         # at the happy end, update version number
         if version < current_version:

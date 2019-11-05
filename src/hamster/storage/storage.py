@@ -29,7 +29,9 @@ class Storage(object):
 
     # signals that are called upon changes
     def tags_changed(self): pass
+
     def facts_changed(self): pass
+
     def activities_changed(self): pass
 
     def dispatch_overwrite(self):
