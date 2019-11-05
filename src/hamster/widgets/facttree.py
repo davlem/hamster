@@ -269,8 +269,16 @@ class FactTree(graphics.Scene, gtk.Scrollable):
 
     __gsignals__ = {
         # enter or double-click, passes in current day and fact
-        'on-activate-row': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT, gobject.TYPE_PYOBJECT)),
-        'on-delete-called': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
+        'on-activate-row': (
+            gobject.SIGNAL_RUN_LAST,
+            gobject.TYPE_NONE,
+            (gobject.TYPE_PYOBJECT, gobject.TYPE_PYOBJECT)
+            ),
+        'on-delete-called': (
+            gobject.SIGNAL_RUN_LAST,
+            gobject.TYPE_NONE,
+            (gobject.TYPE_PYOBJECT,)
+            ),
     }
 
     hadjustment = gobject.property(type=gtk.Adjustment, default=None)
@@ -333,11 +341,14 @@ class FactTree(graphics.Scene, gtk.Scrollable):
         self.grab_focus()
         if self.hover_fact:
             # match either content or id
-            if (self.hover_fact == self.current_fact
-                    or (self.hover_fact
-                        and self.current_fact
-                        and self.hover_fact.id == self.current_fact.id)
-                ):
+            if (
+                self.hover_fact == self.current_fact or
+                (
+                    self.hover_fact and
+                    self.current_fact and
+                    self.hover_fact.id == self.current_fact.id
+                    )
+            ):
                 self.unset_current_fact()
             else:
                 self.set_current_fact(self.hover_fact)
@@ -417,10 +428,16 @@ class FactTree(graphics.Scene, gtk.Scrollable):
                       bisect.bisect(self.row_positions, self.y + self.height))
 
         y = self.y
-        return [{"i": start + i, "y": pos - y, "h": height, "day": day, "facts": facts}
-                for i, (pos, height, (day, facts)) in enumerate(zip(self.row_positions[start:end],
-                                                                    self.row_heights[start:end],
-                                                                    self.days[start:end]))]
+        return [
+            {
+                "i": start + i, "y": pos - y, "h": height, "day": day,
+                "facts": facts
+            } for i, (pos, height, (day, facts)) in enumerate(zip(
+                self.row_positions[start:end],
+                self.row_heights[start:end],
+                self.days[start:end]
+                ))
+            ]
 
     def on_mouse_move(self, tree, event):
         hover_day, hover_fact = None, None
@@ -440,14 +457,19 @@ class FactTree(graphics.Scene, gtk.Scrollable):
 
         if self.hover_day:
             for fact in self.hover_day.get('facts', []):
-                if (fact.y - self.y) <= event.y <= (fact.y - self.y + fact.height):
+                if (
+                    (
+                        fact.y - self.y
+                        ) <= event.y <= (fact.y - self.y + fact.height)
+                ):
                     hover_fact = fact
                     break
 
-        if (hover_fact
-                and self.hover_fact
-                and hover_fact.id != self.hover_fact.id
-            ):
+        if (
+            hover_fact and
+            self.hover_fact and
+            hover_fact.id != self.hover_fact.id
+        ):
             self.move_actions()
         # idem, always update hover_fact, not just if they appear different
         self.hover_fact = hover_fact
@@ -496,9 +518,10 @@ class FactTree(graphics.Scene, gtk.Scrollable):
 
         self.set_row_heights()
 
-        if (self.current_fact
-                and self.current_fact.id in (fact.id for fact in self.facts)
-            ):
+        if (
+            self.current_fact and
+            self.current_fact.id in (fact.id for fact in self.facts)
+        ):
             self.on_scroll()
         else:
             # will also trigger an on_scroll
@@ -585,16 +608,20 @@ class FactTree(graphics.Scene, gtk.Scrollable):
         if has_focus:
             colors = {
                 "normal": self.style.get_color(gtk.StateFlags.NORMAL),
-                "normal_bg": self.style.get_background_color(gtk.StateFlags.NORMAL),
+                "normal_bg": self.style.get_background_color(
+                    gtk.StateFlags.NORMAL),
                 "selected": self.style.get_color(gtk.StateFlags.SELECTED),
-                "selected_bg": self.style.get_background_color(gtk.StateFlags.SELECTED),
+                "selected_bg": self.style.get_background_color(
+                    gtk.StateFlags.SELECTED),
             }
         else:
             colors = {
                 "normal": self.style.get_color(gtk.StateFlags.BACKDROP),
-                "normal_bg": self.style.get_background_color(gtk.StateFlags.BACKDROP),
+                "normal_bg": self.style.get_background_color(
+                    gtk.StateFlags.BACKDROP),
                 "selected": self.style.get_color(gtk.StateFlags.BACKDROP),
-                "selected_bg": self.style.get_background_color(gtk.StateFlags.BACKDROP),
+                "selected_bg": self.style.get_background_color(
+                    gtk.StateFlags.BACKDROP),
             }
 
         if not self.height:

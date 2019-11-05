@@ -97,7 +97,11 @@ class CompleteTree(graphics.Scene):
 
     __gsignals__ = {
         # enter or double-click, passes in current day and fact
-        'on-select-row': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
+        'on-select-row': (
+            gobject.SIGNAL_RUN_LAST,
+            gobject.TYPE_NONE,
+            (gobject.TYPE_PYOBJECT,)
+            ),
     }
 
     def __init__(self):
@@ -165,7 +169,11 @@ class CompleteTree(graphics.Scene):
         self.row_positions = [
             i * self.row_height for i in range(len(self.rows))]
         self.set_size_request(
-            0, self.row_positions[-1] + self.row_height if self.row_positions else 0)
+            0,
+            (
+                self.row_positions[-1] + self.row_height
+                ) if self.row_positions else 0
+            )
 
     def on_enter_frame(self, scene, context):
         if not self.height:
@@ -173,9 +181,11 @@ class CompleteTree(graphics.Scene):
 
         colors = {
             "normal": self.style.get_color(gtk.StateFlags.NORMAL),
-            "normal_bg": self.style.get_background_color(gtk.StateFlags.NORMAL),
+            "normal_bg": self.style.get_background_color(
+                gtk.StateFlags.NORMAL),
             "selected": self.style.get_color(gtk.StateFlags.SELECTED),
-            "selected_bg": self.style.get_background_color(gtk.StateFlags.SELECTED),
+            "selected_bg": self.style.get_background_color(
+                gtk.StateFlags.SELECTED),
         }
 
         g = graphics.Graphics(context)
@@ -196,9 +206,11 @@ class CompleteTree(graphics.Scene):
                 description_color = graphics.Colors.mix(bg, color, 0.75)
                 description_color_str = graphics.Colors.hex(description_color)
 
-                label = '{}  <span color="{}">[{}]</span>'.format(label,
-                                                                  description_color_str,
-                                                                  row.description)
+                label = '{}  <span color="{}">[{}]</span>'.format(
+                    label,
+                    description_color_str,
+                    row.description
+                    )
 
             self.label.show(g, label, color=color)
 
@@ -249,7 +261,7 @@ class CmdLineEntry(gtk.Entry):
         def complete():
             text, suffix = self.complete_first()
             if suffix:
-                #self.ignore_stroke = True
+                # self.ignore_stroke = True
                 with self.handler_block(self.checker):
                     self.update_entry("%s%s" % (text, suffix))
                     self.select_region(len(text), -1)
@@ -298,8 +310,12 @@ class CmdLineEntry(gtk.Entry):
         # score is as simple as you get 30-days_ago points for each occurence
         suggestions = defaultdict(int)
         for fact in last_month:
-            days = 30 - (now - dt.datetime.combine(fact.date,
-                                                   dt.time())).total_seconds() / 60 / 60 / 24
+            days = 30 - (
+                now - dt.datetime.combine(
+                    fact.date,
+                    dt.time()
+                    )
+                ).total_seconds() / 60 / 60 / 24
             label = fact.activity
             if fact.category:
                 label += "@%s" % fact.category
@@ -349,7 +365,8 @@ class CmdLineEntry(gtk.Entry):
 
             * we will leave description for later
 
-            all our magic is space separated, strictly, start-end can be just dash
+            all our magic is space separated, strictly, start-end can be
+            just dash
 
             phases:
 
@@ -363,8 +380,8 @@ class CmdLineEntry(gtk.Entry):
 
         # figure out what we are looking for
         # time -> activity[@category] -> tags -> description
-        # presence of an attribute means that we are not looking for the previous one
-        # we still might be looking for the current one though
+        # presence of an attribute means that we are not looking for
+        # the previous one we still might be looking for the current one though
         looking_for = "start_time"
         fields = [
             "start_time",
@@ -444,7 +461,8 @@ class CmdLineEntry(gtk.Entry):
                 variant = prev_fact.end_time.strftime("%H:%M ")
                 variants.append((description, variant))
 
-            description = "start activity -n minutes ago (1 or 3 digits allowed)"
+            description = (
+                "start activity -n minutes ago (1 or 3 digits allowed)")
             variant = "-"
             variants.append((description, variant))
 
@@ -465,7 +483,10 @@ class CmdLineEntry(gtk.Entry):
 
         entry_alloc = self.get_allocation()
         entry_x, entry_y = self.get_window().get_origin()[1:]
-        x, y = entry_x + entry_alloc.x, entry_y + entry_alloc.y + entry_alloc.height
+        x, y = (
+            entry_x + entry_alloc.x,
+            entry_y + entry_alloc.y + entry_alloc.height
+            )
 
         self.popup.show_all()
 

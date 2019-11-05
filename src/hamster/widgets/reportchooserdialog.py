@@ -29,19 +29,24 @@ class ReportChooserDialog(gtk.Dialog):
         # format, path, start_date, end_date
         'report-chosen': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
                           (gobject.TYPE_STRING, gobject.TYPE_STRING)),
-        'report-chooser-closed': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
+        'report-chooser-closed': (
+            gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, ()),
     }
 
     def __init__(self):
         gtk.Dialog.__init__(self)
 
-        self.dialog = gtk.FileChooserDialog(title=_("Save Report — Time Tracker"),
-                                            parent=self,
-                                            action=gtk.FileChooserAction.SAVE,
-                                            buttons=(gtk.STOCK_CANCEL,
-                                                     gtk.ResponseType.CANCEL,
-                                                     gtk.STOCK_SAVE,
-                                                     gtk.ResponseType.OK))
+        self.dialog = gtk.FileChooserDialog(
+            title=_("Save Report — Time Tracker"),
+            parent=self,
+            action=gtk.FileChooserAction.SAVE,
+            buttons=(
+                gtk.STOCK_CANCEL,
+                gtk.ResponseType.CANCEL,
+                gtk.STOCK_SAVE,
+                gtk.ResponseType.OK
+                )
+            )
 
         # try to set path to last known folder or fall back to home
         report_folder = os.path.expanduser(conf.get("last_report_folder"))
@@ -126,7 +131,7 @@ class ReportChooserDialog(gtk.Dialog):
         # TODO - proper way would be to change extension on filter change
         # only pointer in web is
         # http://www.mail-archive.com/pygtk@daa.com.au/msg08740.html
-        if path.endswith(".%s" % format) == False:
+        if path.endswith(".%s" % format) is False:
             path = "%s.%s" % (path.rstrip("."), format)
 
         categories = []

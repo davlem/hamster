@@ -60,7 +60,8 @@ def add_hint(entry, hint):
         self.set_text(self.hint)
 
     def _set_normal(self, widget, event):
-        #self.modify_text(gtk.StateType.NORMAL, self.get_style().fg[gtk.StateType.NORMAL])
+        # self.modify_text(gtk.StateType.NORMAL,
+        # self.get_style().fg[gtk.StateType.NORMAL])
         hint_font = pango.FontDescription(
             self.get_style().font_desc.to_string())
         hint_font.set_style(pango.Style.NORMAL)
@@ -70,7 +71,7 @@ def add_hint(entry, hint):
             self.set_text("")
 
     def _on_changed(self, widget):
-        if self.real_get_text() == "" and self.is_focus() == False:
+        if self.real_get_text() == "" and self.is_focus() is False:
             self._set_hint(widget, None)
 
     import types

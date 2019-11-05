@@ -107,7 +107,9 @@ class TagsEntry(gtk.Entry):
 
     def on_tag_unselected(self, tag_box, tag):
         tags = self.get_tags()
-        while tag in tags:  # it could be that dear user is mocking us and entering same tag over and over again
+        while tag in tags:
+            # it could be that dear user is mocking us and entering same
+            # tag over and over again
             tags.remove(tag)
 
         self.tag_box.selected_tags = tags
@@ -151,8 +153,11 @@ class TagsEntry(gtk.Entry):
         self.categories = None
 
     def populate_suggestions(self):
-        self.ac_tags = self.ac_tags or [tag["name"] for tag in
-                                        runtime.storage.get_tags(only_autocomplete=True)]
+        self.ac_tags = self.ac_tags or [
+            tag["name"] for tag in runtime.storage.get_tags(
+                only_autocomplete=True
+                )
+            ]
 
         cursor_tag = self.get_cursor_tag()
 
@@ -161,8 +166,11 @@ class TagsEntry(gtk.Entry):
         entered_tags = self.get_tags()
         self.tag_box.selected_tags = entered_tags
 
-        self.filter_tags = [tag for tag in self.ac_tags
-                            if (tag or "").lower().startswith((self.filter or "").lower())]
+        self.filter_tags = [
+            tag for tag in self.ac_tags if (
+                tag or ""
+                ).lower().startswith((self.filter or "").lower())
+            ]
 
         self.tag_box.draw(self.filter_tags)
 
@@ -193,7 +201,8 @@ class TagsEntry(gtk.Entry):
         text = self.get_text()
 
         return text[text.rfind(
-            ",", 0, cursor) + 1:max(text.find(",", cursor + 1) + 1, len(text))].strip()
+            ",", 0, cursor
+            ) + 1:max(text.find(",", cursor + 1) + 1, len(text))].strip()
 
     def replace_tag(self, old_tag, new_tag):
         tags = self.get_tags()
@@ -330,7 +339,8 @@ class TagBox(graphics.Scene):
         cur_x, cur_y = 4, 4
         tag = None
         for tag in self.tags:
-            if cur_x + tag.width >= self.width - 5:  # if we do not fit, we wrap
+            if cur_x + tag.width >= self.width - 5:
+                # if we do not fit, we wrap
                 cur_x = 5
                 cur_y += tag.height + 6
 
@@ -371,7 +381,8 @@ class Tag(graphics.Sprite):
         if name == 'text' and hasattr(self, 'label'):
             self.label.text = value
             self.__dict__['width'], self.__dict__['height'] = int(
-                self.label.x + self.label.width + self.label.height * 0.3), self.label.height + 3
+                self.label.x + self.label.width + self.label.height * 0.3
+                ), self.label.height + 3
 
     def on_render(self, sprite):
         self.graphics.set_line_style(width=1)

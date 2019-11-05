@@ -84,7 +84,15 @@ class RangePick(gtk.ToggleButton):
     """ a text entry widget with calendar popup"""
     __gsignals__ = {
         # day|week|month|manual, start, end
-        'range-selected': (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT, gobject.TYPE_PYOBJECT, gobject.TYPE_PYOBJECT)),
+        'range-selected': (
+            gobject.SIGNAL_RUN_LAST,
+            gobject.TYPE_NONE,
+            (
+                gobject.TYPE_PYOBJECT,
+                gobject.TYPE_PYOBJECT,
+                gobject.TYPE_PYOBJECT
+                )
+            ),
     }
 
     def __init__(self, today):
@@ -191,7 +199,9 @@ class RangePick(gtk.ToggleButton):
 
     def on_focus_out(self, popup, event):
         x, y = self.get_pointer()
-        button_w, button_h = self.get_allocation().width, self.get_allocation().height
+        (
+            button_w, button_h
+            ) = self.get_allocation().width, self.get_allocation().height
         # avoid double-toggling when focus goes from window to the toggle
         # button
         if 0 <= x <= button_w and 0 <= y <= button_h:

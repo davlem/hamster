@@ -52,7 +52,8 @@ class Selection(graphics.Sprite):
         self.graphics.stroke(self.fill)
 
         # adjust labels
-        self.start_label.visible = self.start_time is not None and self.start_time != self.end_time
+        self.start_label.visible = (
+            self.start_time is not None and self.start_time != self.end_time)
         if self.start_label.visible:
             self.start_label.text = self.start_time.strftime("%H:%M")
             if self.x - self.start_label.width - 5 > 0:
@@ -62,7 +63,8 @@ class Selection(graphics.Sprite):
 
             self.start_label.y = self.height + 2
 
-        self.end_label.visible = self.end_time is not None and self.start_time != self.end_time
+        self.end_label.visible = (
+            self.end_time is not None and self.start_time != self.end_time)
         if self.end_label.visible:
             self.end_label.text = self.end_time.strftime("%H:%M")
             self.end_label.x = self.width + 5
@@ -73,7 +75,8 @@ class Selection(graphics.Sprite):
             self.duration_label.text = "%02d:%02d" % (
                 duration / 60, duration % 60)
 
-            self.duration_label.visible = self.duration_label.width < self.width
+            self.duration_label.visible = (
+                self.duration_label.width < self.width)
             if self.duration_label.visible:
                 self.duration_label.y = (
                     self.height - self.duration_label.height) / 2
@@ -110,8 +113,11 @@ class DayLine(graphics.Scene):
         self.drag_start = None
         self.current_x = None
 
-        self.date_label = graphics.Label(color=self._style.get_color(gtk.StateFlags.NORMAL),
-                                         x=5, y=16)
+        self.date_label = graphics.Label(
+            color=self._style.get_color(gtk.StateFlags.NORMAL),
+            x=5,
+            y=16
+            )
 
         self.add_child(self.plot_area, self.date_label)
 
@@ -159,9 +165,11 @@ class DayLine(graphics.Scene):
 
         colors = {
             "normal": self._style.get_color(gtk.StateFlags.NORMAL),
-            "normal_bg": self._style.get_background_color(gtk.StateFlags.NORMAL),
+            "normal_bg": self._style.get_background_color(
+                gtk.StateFlags.NORMAL),
             "selected": self._style.get_color(gtk.StateFlags.SELECTED),
-            "selected_bg": self._style.get_background_color(gtk.StateFlags.SELECTED),
+            "selected_bg": self._style.get_background_color(
+                gtk.StateFlags.SELECTED),
         }
 
         bottom = self.plot_area.y + self.plot_area.height
@@ -177,7 +185,10 @@ class DayLine(graphics.Scene):
             bar.x = round(minutes / minute_pixel) + 0.5
             bar.width = round((bar.fact.delta).seconds / 60 / minute_pixel)
 
-        if self.chosen_selection.start_time and self.chosen_selection.width is None:
+        if (
+                self.chosen_selection.start_time and
+                self.chosen_selection.width is None
+        ):
             # we have time but no pixels
             minutes = round((self.chosen_selection.start_time -
                              self.view_time).seconds / 60 / minute_pixel) + 0.5
